@@ -623,33 +623,43 @@ def get_reconciliation_report(user_id: str = Depends(get_user_id)):
 @router.post("/ai/advice")
 async def get_ai_advice(payload: Dict, user_id: str = Depends(get_user_id)):
     """
-    Ian - El Asistente Financiero. Proporciona consejos basados en los datos actuales.
+    Ian - El Asistente Financiero Senior. Proporciona consejos y responde dudas 
+    basados en el contexto financiero actual del usuario.
     """
     context = payload.get("context", "business")
     data = payload.get("data", {})
+    user_query = payload.get("prompt", "Dame un reporte estratégico de mi situación actual.")
     
     model = genai.GenerativeModel('gemini-1.5-flash')
     
-    prompt = f"""
-    Eres Ian, el Asesor Financiero Senior de HSR Control. Tu cliente es Hazael Silva.
-    Analiza los siguientes datos financieros de su contexto {context.upper()}:
+    system_instruction = f"""
+    Eres Ian, el CFO Virtual y Asesor Financiero Senior de Hazael Silva en su plataforma 'HSR Control'.
     
-    DATOS ACTUALES:
+    CONTEXTO ACTUAL ({context.upper()}):
     {data}
     
-    INSTRUCCIONES:
-    1. Sé directo, profesional y pro-activo.
-    2. Identifica 2-3 áreas de oportunidad o riesgos (ej. ROI bajo, runway corto, gastos elevados en categorías específicas).
-    3. Proporciona consejos accionables para optimizar el flujo de caja o el patrimonio personal.
-    4. Responde en español, usando un tono de confianza y experto.
-    5. Formatea la respuesta en HTML ligero (usando <strong>, <p> y <ul class='list-disc pl-5'>) para que se vea bien en el chat.
+    TU MISIÓN:
+    1. Actúa como un experto financiero pragmático y proactivo. 
+    2. Usa los números reales proporcionados para dar respuestas específicas. No seas genérico.
+    3. Si detectas riesgos (ej. runway bajo, ROI negativo), menciónalos con soluciones claras.
+    4. Responde en español con un tono profesional pero cercano, digno de un socio de confianza.
+    5. Formatea tu respuesta con HTML ligero:
+       - Usa <p> para párrafos.
+       - Usa <strong> para resaltar cifras o conceptos clave.
+       - Usa <ul class='list-disc pl-5 my-2'> <li> para listas de acciones.
     
-    No des explicaciones genéricas; usa los números proporcionados para ser específico.
+    PREGUNTA DEL USUARIO:
+    "{user_query}"
     """
     
     try:
-        response = model.generate_content(prompt)
-        return {"advice": response.text}
+        # Generamos contenido con el contexto y la duda específica
+        response = model.generate_content(system_instruction)
+        
+        # Limpieza básica de markdown si Gemini ignora la instrucción de HTML
+        advice_html = response.text.replace("```html", "").replace("```", "").strip()
+        
+        return {"advice": advice_html}
     except Exception as e:
-        logger.error(f"AI Advice error: {str(e)}")
-        raise HTTPException(status_code=500, detail="Ian está pensando demasiado, intenta de nuevo.")
+        logger.error(f"Ian AI Error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Ian está procesando datos complejos en este momento. Intenta de nuevo.")

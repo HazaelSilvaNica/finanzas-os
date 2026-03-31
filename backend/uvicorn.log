@@ -2450,3 +2450,382 @@ https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/READM
 INFO:     Started server process [31392]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'api_v1.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [31392]
+/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/google/api_core/_python_version_support.py:234: FutureWarning: You are using a non-supported Python version (3.9.6). Google will not post any further updates to google.api_core supporting this Python version. Please upgrade to the latest Python version, or at least Python 3.10, and then update google.api_core.
+  warnings.warn(message, FutureWarning)
+/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/google/auth/__init__.py:54: FutureWarning: You are using a Python version 3.9 past its end of life. Google will update google-auth with critical bug fixes on a best-effort basis, but not with any other fixes or features. Please upgrade your Python version, and then update google-auth.
+  warnings.warn(eol_message.format("3.9"), FutureWarning)
+/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/google/oauth2/__init__.py:40: FutureWarning: You are using a Python version 3.9 past its end of life. Google will update google-auth with critical bug fixes on a best-effort basis, but not with any other fixes or features. Please upgrade your Python version, and then update google-auth.
+  warnings.warn(eol_message.format("3.9"), FutureWarning)
+/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/api_v1.py:12: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+2026-03-31 16:01:44,549 [INFO] finanzasOS: Initializing database...
+INFO:     Started server process [38985]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:51109 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51109 - "GET /manifest.json HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:51137 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51143 - "GET /manifest.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51137 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51139 - "GET /icon-192.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51866 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52058 - "GET / HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'api_v1.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [38985]
+/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/google/api_core/_python_version_support.py:234: FutureWarning: You are using a non-supported Python version (3.9.6). Google will not post any further updates to google.api_core supporting this Python version. Please upgrade to the latest Python version, or at least Python 3.10, and then update google.api_core.
+  warnings.warn(message, FutureWarning)
+/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/google/auth/__init__.py:54: FutureWarning: You are using a Python version 3.9 past its end of life. Google will update google-auth with critical bug fixes on a best-effort basis, but not with any other fixes or features. Please upgrade your Python version, and then update google-auth.
+  warnings.warn(eol_message.format("3.9"), FutureWarning)
+/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/google/oauth2/__init__.py:40: FutureWarning: You are using a Python version 3.9 past its end of life. Google will update google-auth with critical bug fixes on a best-effort basis, but not with any other fixes or features. Please upgrade your Python version, and then update google-auth.
+  warnings.warn(eol_message.format("3.9"), FutureWarning)
+/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/api_v1.py:12: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+2026-03-31 16:36:42,464 [INFO] finanzasOS: Initializing database...
+INFO:     Started server process [46662]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:53114 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53314 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:53318 - "GET /manifest.json HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:53315 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:53412 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:53487 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:53571 - "POST /api/v1/ai/advice HTTP/1.1" 401 Unauthorized
+2026-03-31 16:41:19,199 [INFO] httpx: HTTP Request: GET https://cdukdxqxfswnckzpdksu.supabase.co/auth/v1/user "HTTP/2 403 Forbidden"
+2026-03-31 16:41:19,202 [ERROR] finanzasOS.v1: Auth error: invalid JWT: unable to parse or verify signature, token signature is invalid: crypto/ecdsa: verification error
+INFO:     127.0.0.1:53761 - "POST /api/v1/ai/advice HTTP/1.1" 401 Unauthorized
+2026-03-31 16:42:16,495 [INFO] httpx: HTTP Request: GET https://cdukdxqxfswnckzpdksu.supabase.co/auth/v1/user "HTTP/2 403 Forbidden"
+2026-03-31 16:42:16,499 [ERROR] finanzasOS.v1: Auth error: invalid JWT: unable to parse or verify signature, token signature is invalid: crypto/ecdsa: verification error
+INFO:     127.0.0.1:53900 - "POST /api/v1/ai/advice HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54015 - "POST /api/v1/ai/advice HTTP/1.1" 401 Unauthorized
+2026-03-31 16:44:37,386 [INFO] httpx: HTTP Request: GET https://cdukdxqxfswnckzpdksu.supabase.co/auth/v1/user "HTTP/2 403 Forbidden"
+2026-03-31 16:44:37,387 [ERROR] finanzasOS.v1: Auth error: invalid JWT: unable to parse or verify signature, token signature is invalid: crypto/ecdsa: verification error
+INFO:     127.0.0.1:54238 - "POST /api/v1/ai/advice HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54327 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54327 - "GET /icon-192.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:54329 - "GET / HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:54452 - "GET / HTTP/1.1" 304 Not Modified
+2026-03-31 16:46:18,516 [INFO] httpx: HTTP Request: GET https://cdukdxqxfswnckzpdksu.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2026-03-31 16:46:20,360 [INFO] httpx: HTTP Request: POST https://electriganadero.odoo.com/jsonrpc "HTTP/1.1 200 OK"
+2026-03-31 16:46:20,362 [INFO] odoo_client: ✅ Autenticado en Odoo 19 SaaS — UID=2, login=electriganadero.apps@gmail.com
+2026-03-31 16:46:20,856 [INFO] httpx: HTTP Request: POST https://electriganadero.odoo.com/jsonrpc "HTTP/1.1 200 OK"
+2026-03-31 16:46:20,970 [INFO] httpx: HTTP Request: POST https://electriganadero.odoo.com/jsonrpc "HTTP/1.1 200 OK"
+2026-03-31 16:46:22,359 [INFO] httpx: HTTP Request: GET https://cdukdxqxfswnckzpdksu.supabase.co/rest/v1/transactions?select=monto&entidad=eq.BUSINESS&tipo=eq.EXPENSE&fecha=gte.2026-03-01&fecha=lte.2026-03-31&user_id=eq.e81d1042-40fc-4397-8e31-3423b370456e "HTTP/2 400 Bad Request"
+2026-03-31 16:46:22,359 [ERROR] finanzasOS.v1: Error en business summary
+Traceback (most recent call last):
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/api_v1.py", line 193, in get_business_summary
+    res_opex = supabase.table('transactions').select("monto").filter('entidad', 'eq', 'BUSINESS').filter('tipo', 'eq', 'EXPENSE').filter('fecha', 'gte', primer_dia).filter('fecha', 'lte', ultimo_dia).filter('user_id', 'eq', user_id).execute()
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/postgrest/_sync/request_builder.py", line 53, in execute
+    raise APIError(dict(json_obj))
+postgrest.exceptions.APIError: {'message': 'column transactions.user_id does not exist', 'code': '42703', 'hint': None, 'details': None}
+INFO:     127.0.0.1:54452 - "GET /api/v1/business/summary HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:54517 - "GET /api/v1/bi/summary?anio=2026&mes=3 HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54517 - "GET /api/v1/analysis/forecast?entidad=business HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54517 - "GET /api/v1/debts?entidad=business HTTP/1.1" 401 Unauthorized
+2026-03-31 16:46:22,645 [INFO] httpx: HTTP Request: GET https://cdukdxqxfswnckzpdksu.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2026-03-31 16:46:23,171 [INFO] httpx: HTTP Request: GET https://cdukdxqxfswnckzpdksu.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2026-03-31 16:46:23,692 [INFO] httpx: HTTP Request: GET https://cdukdxqxfswnckzpdksu.supabase.co/rest/v1/transactions?select=%2A&entidad=eq.BUSINESS&tipo=eq.EXPENSE&fecha=gte.2026-03-01&fecha=lte.2026-03-31&user_id=eq.e81d1042-40fc-4397-8e31-3423b370456e&order=fecha.desc "HTTP/2 400 Bad Request"
+INFO:     127.0.0.1:54517 - "GET /api/v1/business/expenses HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/uvicorn/protocols/http/httptools_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/fastapi/applications.py", line 1138, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/middleware/cors.py", line 85, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/fastapi/routing.py", line 121, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/fastapi/routing.py", line 107, in app
+    response = await f(request)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/fastapi/routing.py", line 426, in app
+    raw_response = await run_endpoint_function(
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/fastapi/routing.py", line 316, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/concurrency.py", line 38, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/anyio/to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/anyio/_backends/_asyncio.py", line 2502, in run_sync_in_worker_thread
+    return await future
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/anyio/_backends/_asyncio.py", line 986, in run
+    result = context.run(func, *args)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/api_v1.py", line 229, in get_business_expenses
+    res = query.order('fecha', desc=True).execute()
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/postgrest/_sync/request_builder.py", line 53, in execute
+    raise APIError(dict(json_obj))
+postgrest.exceptions.APIError: {'message': 'column transactions.user_id does not exist', 'code': '42703', 'hint': None, 'details': None}
+2026-03-31 16:46:23,862 [INFO] httpx: HTTP Request: POST https://electriganadero.odoo.com/jsonrpc "HTTP/1.1 200 OK"
+2026-03-31 16:46:25,285 [INFO] httpx: HTTP Request: POST https://electriganadero.odoo.com/jsonrpc "HTTP/1.1 200 OK"
+2026-03-31 16:46:25,674 [INFO] httpx: HTTP Request: GET https://cdukdxqxfswnckzpdksu.supabase.co/rest/v1/transactions?select=monto&entidad=eq.BUSINESS&tipo=eq.EXPENSE&fecha=gte.2026-03-01&fecha=lte.2026-03-31&user_id=eq.e81d1042-40fc-4397-8e31-3423b370456e "HTTP/2 400 Bad Request"
+2026-03-31 16:46:25,675 [ERROR] finanzasOS.v1: Error en business summary
+Traceback (most recent call last):
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/api_v1.py", line 193, in get_business_summary
+    res_opex = supabase.table('transactions').select("monto").filter('entidad', 'eq', 'BUSINESS').filter('tipo', 'eq', 'EXPENSE').filter('fecha', 'gte', primer_dia).filter('fecha', 'lte', ultimo_dia).filter('user_id', 'eq', user_id).execute()
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/postgrest/_sync/request_builder.py", line 53, in execute
+    raise APIError(dict(json_obj))
+postgrest.exceptions.APIError: {'message': 'column transactions.user_id does not exist', 'code': '42703', 'hint': None, 'details': None}
+INFO:     127.0.0.1:54452 - "GET /api/v1/business/summary HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:54452 - "GET /api/v1/bi/summary?anio=2026&mes=3 HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54452 - "GET /api/v1/analysis/forecast?entidad=business HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54452 - "GET /api/v1/debts?entidad=business HTTP/1.1" 401 Unauthorized
+2026-03-31 16:46:25,914 [INFO] httpx: HTTP Request: GET https://cdukdxqxfswnckzpdksu.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2026-03-31 16:46:26,311 [INFO] httpx: HTTP Request: GET https://cdukdxqxfswnckzpdksu.supabase.co/rest/v1/transactions?select=%2A&entidad=eq.BUSINESS&tipo=eq.EXPENSE&fecha=gte.2026-03-01&fecha=lte.2026-03-31&user_id=eq.e81d1042-40fc-4397-8e31-3423b370456e&order=fecha.desc "HTTP/2 400 Bad Request"
+INFO:     127.0.0.1:54452 - "GET /api/v1/business/expenses HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/uvicorn/protocols/http/httptools_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/fastapi/applications.py", line 1138, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/middleware/cors.py", line 85, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/fastapi/routing.py", line 121, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/fastapi/routing.py", line 107, in app
+    response = await f(request)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/fastapi/routing.py", line 426, in app
+    raw_response = await run_endpoint_function(
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/fastapi/routing.py", line 316, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/concurrency.py", line 38, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/anyio/to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/anyio/_backends/_asyncio.py", line 2502, in run_sync_in_worker_thread
+    return await future
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/anyio/_backends/_asyncio.py", line 986, in run
+    result = context.run(func, *args)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/api_v1.py", line 229, in get_business_expenses
+    res = query.order('fecha', desc=True).execute()
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/postgrest/_sync/request_builder.py", line 53, in execute
+    raise APIError(dict(json_obj))
+postgrest.exceptions.APIError: {'message': 'column transactions.user_id does not exist', 'code': '42703', 'hint': None, 'details': None}
+INFO:     127.0.0.1:54590 - "GET / HTTP/1.1" 304 Not Modified
+2026-03-31 16:46:45,194 [INFO] httpx: HTTP Request: GET https://cdukdxqxfswnckzpdksu.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2026-03-31 16:46:45,587 [INFO] httpx: HTTP Request: POST https://electriganadero.odoo.com/jsonrpc "HTTP/1.1 200 OK"
+2026-03-31 16:46:46,813 [INFO] httpx: HTTP Request: POST https://electriganadero.odoo.com/jsonrpc "HTTP/1.1 200 OK"
+2026-03-31 16:46:47,287 [INFO] httpx: HTTP Request: GET https://cdukdxqxfswnckzpdksu.supabase.co/rest/v1/transactions?select=monto&entidad=eq.BUSINESS&tipo=eq.EXPENSE&fecha=gte.2026-03-01&fecha=lte.2026-03-31&user_id=eq.e81d1042-40fc-4397-8e31-3423b370456e "HTTP/2 400 Bad Request"
+2026-03-31 16:46:47,288 [ERROR] finanzasOS.v1: Error en business summary
+Traceback (most recent call last):
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/api_v1.py", line 193, in get_business_summary
+    res_opex = supabase.table('transactions').select("monto").filter('entidad', 'eq', 'BUSINESS').filter('tipo', 'eq', 'EXPENSE').filter('fecha', 'gte', primer_dia).filter('fecha', 'lte', ultimo_dia).filter('user_id', 'eq', user_id).execute()
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/postgrest/_sync/request_builder.py", line 53, in execute
+    raise APIError(dict(json_obj))
+postgrest.exceptions.APIError: {'message': 'column transactions.user_id does not exist', 'code': '42703', 'hint': None, 'details': None}
+INFO:     127.0.0.1:54590 - "GET /api/v1/business/summary HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:54592 - "GET /api/v1/bi/summary?anio=2026&mes=3 HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54592 - "GET /api/v1/analysis/forecast?entidad=business HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54592 - "GET /api/v1/debts?entidad=business HTTP/1.1" 401 Unauthorized
+2026-03-31 16:46:47,554 [INFO] httpx: HTTP Request: GET https://cdukdxqxfswnckzpdksu.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2026-03-31 16:46:47,817 [INFO] httpx: HTTP Request: GET https://cdukdxqxfswnckzpdksu.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2026-03-31 16:46:47,922 [INFO] httpx: HTTP Request: POST https://electriganadero.odoo.com/jsonrpc "HTTP/1.1 200 OK"
+2026-03-31 16:46:48,022 [INFO] httpx: HTTP Request: POST https://electriganadero.odoo.com/jsonrpc "HTTP/1.1 200 OK"
+2026-03-31 16:46:48,062 [INFO] httpx: HTTP Request: GET https://cdukdxqxfswnckzpdksu.supabase.co/rest/v1/transactions?select=%2A&entidad=eq.BUSINESS&tipo=eq.EXPENSE&fecha=gte.2026-03-01&fecha=lte.2026-03-31&user_id=eq.e81d1042-40fc-4397-8e31-3423b370456e&order=fecha.desc "HTTP/2 400 Bad Request"
+2026-03-31 16:46:48,337 [INFO] httpx: HTTP Request: GET https://cdukdxqxfswnckzpdksu.supabase.co/rest/v1/transactions?select=monto&entidad=eq.BUSINESS&tipo=eq.EXPENSE&fecha=gte.2026-03-01&fecha=lte.2026-03-31&user_id=eq.e81d1042-40fc-4397-8e31-3423b370456e "HTTP/2 400 Bad Request"
+INFO:     127.0.0.1:54592 - "GET /api/v1/business/expenses HTTP/1.1" 500 Internal Server Error
+2026-03-31 16:46:48,339 [ERROR] finanzasOS.v1: Error en business summary
+Traceback (most recent call last):
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/api_v1.py", line 193, in get_business_summary
+    res_opex = supabase.table('transactions').select("monto").filter('entidad', 'eq', 'BUSINESS').filter('tipo', 'eq', 'EXPENSE').filter('fecha', 'gte', primer_dia).filter('fecha', 'lte', ultimo_dia).filter('user_id', 'eq', user_id).execute()
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/postgrest/_sync/request_builder.py", line 53, in execute
+    raise APIError(dict(json_obj))
+postgrest.exceptions.APIError: {'message': 'column transactions.user_id does not exist', 'code': '42703', 'hint': None, 'details': None}
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/uvicorn/protocols/http/httptools_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/fastapi/applications.py", line 1138, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/middleware/cors.py", line 85, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/fastapi/routing.py", line 121, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/fastapi/routing.py", line 107, in app
+    response = await f(request)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/fastapi/routing.py", line 426, in app
+    raw_response = await run_endpoint_function(
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/fastapi/routing.py", line 316, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/concurrency.py", line 38, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/anyio/to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/anyio/_backends/_asyncio.py", line 2502, in run_sync_in_worker_thread
+    return await future
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/anyio/_backends/_asyncio.py", line 986, in run
+    result = context.run(func, *args)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/api_v1.py", line 229, in get_business_expenses
+    res = query.order('fecha', desc=True).execute()
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/postgrest/_sync/request_builder.py", line 53, in execute
+    raise APIError(dict(json_obj))
+postgrest.exceptions.APIError: {'message': 'column transactions.user_id does not exist', 'code': '42703', 'hint': None, 'details': None}
+INFO:     127.0.0.1:54590 - "GET /api/v1/business/summary HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:54590 - "GET /api/v1/bi/summary?anio=2026&mes=3 HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54590 - "GET /api/v1/analysis/forecast?entidad=business HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54590 - "GET /api/v1/debts?entidad=business HTTP/1.1" 401 Unauthorized
+2026-03-31 16:46:48,598 [INFO] httpx: HTTP Request: GET https://cdukdxqxfswnckzpdksu.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2026-03-31 16:46:48,860 [INFO] httpx: HTTP Request: GET https://cdukdxqxfswnckzpdksu.supabase.co/rest/v1/transactions?select=%2A&entidad=eq.BUSINESS&tipo=eq.EXPENSE&fecha=gte.2026-03-01&fecha=lte.2026-03-31&user_id=eq.e81d1042-40fc-4397-8e31-3423b370456e&order=fecha.desc "HTTP/2 400 Bad Request"
+INFO:     127.0.0.1:54590 - "GET /api/v1/business/expenses HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/uvicorn/protocols/http/httptools_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/fastapi/applications.py", line 1138, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/middleware/cors.py", line 85, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/fastapi/routing.py", line 121, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/fastapi/routing.py", line 107, in app
+    response = await f(request)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/fastapi/routing.py", line 426, in app
+    raw_response = await run_endpoint_function(
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/fastapi/routing.py", line 316, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/starlette/concurrency.py", line 38, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/anyio/to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/anyio/_backends/_asyncio.py", line 2502, in run_sync_in_worker_thread
+    return await future
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/anyio/_backends/_asyncio.py", line 986, in run
+    result = context.run(func, *args)
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/api_v1.py", line 229, in get_business_expenses
+    res = query.order('fecha', desc=True).execute()
+  File "/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/postgrest/_sync/request_builder.py", line 53, in execute
+    raise APIError(dict(json_obj))
+postgrest.exceptions.APIError: {'message': 'column transactions.user_id does not exist', 'code': '42703', 'hint': None, 'details': None}
+2026-03-31 16:47:11,935 [INFO] httpx: HTTP Request: GET https://cdukdxqxfswnckzpdksu.supabase.co/auth/v1/user "HTTP/2 200 OK"
+2026-03-31 16:47:12,469 [ERROR] finanzasOS.v1: Ian AI Error: 404 models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+INFO:     127.0.0.1:54658 - "POST /api/v1/ai/advice HTTP/1.1" 500 Internal Server Error
