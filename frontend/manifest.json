@@ -1,7 +1,7 @@
 {
-  "name": "FinanzasOS",
-  "short_name": "FinanzasOS",
-  "description": "Sistema Operativo Financiero para ElectriGanadero y Personal",
+  "name": "HSR Control",
+  "short_name": "HSR Control",
+  "description": "Sistema de Gestión Privado para HSR",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#000000",

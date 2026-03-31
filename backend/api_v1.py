@@ -3,7 +3,7 @@ import logging
 import uuid
 from datetime import datetime, date
 from typing import Optional, List, Dict
-from fastapi import APIRouter, HTTPException, Query, UploadFile, File, Depends, Form
+from fastapi import APIRouter, HTTPException, Query, UploadFile, File, Depends, Form, Header
 from odoo_client import odoo
 import base64
 from openai import OpenAI
@@ -14,6 +14,28 @@ def _check_supabase():
     if not supabase:
         raise HTTPException(status_code=503, detail="Supabase connection lost")
     return supabase
+
+def get_user_id(authorization: str = Header(None)):
+    """Verifica el token JWT de Supabase y extrae el user_id."""
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Missing or invalid Authorization header")
+    
+    token = authorization.split(" ")[1]
+    try:
+        # Usamos el cliente de Supabase para verificar el token
+        user_res = supabase.auth.get_user(token)
+        if not user_res.user:
+            raise HTTPException(status_code=401, detail="Invalid session")
+        
+        # Restricción de correo admin
+        admin_email = "hazael.silva.n@gmail.com"
+        if user_res.user.email != admin_email:
+            raise HTTPException(status_code=403, detail="Acceso denegado: Usuario no autorizado")
+            
+        return user_res.user.id
+    except Exception as e:
+        logger.error(f"Auth error: {str(e)}")
+        raise HTTPException(status_code=401, detail="Authentication failed")
 
 router = APIRouter(prefix="/api/v1")
 logger = logging.getLogger("finanzasOS.v1")
@@ -53,7 +75,7 @@ def _clasificar_gasto_personal(nombre: str, monto: float = 0) -> str:
 # ─────────────────────────────────────────────
 
 @router.get("/business/summary")
-def get_business_summary(anio: Optional[int] = Query(None), mes: Optional[int] = Query(None)):
+def get_business_summary(anio: Optional[int] = Query(None), mes: Optional[int] = Query(None), user_id: str = Depends(get_user_id)):
     hoy = date.today()
     anio_q = anio or hoy.year
     mes_q = mes or hoy.month
@@ -80,11 +102,11 @@ def get_business_summary(anio: Optional[int] = Query(None), mes: Optional[int] =
         compras_total = sum(c.get("amount_total", 0) for c in compras_raw)
         
         # Supabase Transactions - OPEX
-        res_opex = supabase.table('transactions').select("monto").filter('entidad', 'eq', 'BUSINESS').filter('tipo', 'eq', 'EXPENSE').filter('fecha', 'gte', primer_dia).filter('fecha', 'lte', ultimo_dia).execute()
+        res_opex = supabase.table('transactions').select("monto").filter('entidad', 'eq', 'BUSINESS').filter('tipo', 'eq', 'EXPENSE').filter('fecha', 'gte', primer_dia).filter('fecha', 'lte', ultimo_dia).filter('user_id', 'eq', user_id).execute()
         opex_total = sum(item['monto'] for item in res_opex.data)
         
         # Supabase Transactions - Manual Income
-        res_income = supabase.table('transactions').select("monto").filter('entidad', 'eq', 'BUSINESS').filter('tipo', 'eq', 'INCOME').filter('fecha', 'gte', primer_dia).filter('fecha', 'lte', ultimo_dia).execute()
+        res_income = supabase.table('transactions').select("monto").filter('entidad', 'eq', 'BUSINESS').filter('tipo', 'eq', 'INCOME').filter('fecha', 'gte', primer_dia).filter('fecha', 'lte', ultimo_dia).filter('user_id', 'eq', user_id).execute()
         income_manual = sum(item['monto'] for item in res_income.data)
 
         total_ventas_final = ventas_total + float(income_manual)
@@ -105,7 +127,7 @@ def get_business_summary(anio: Optional[int] = Query(None), mes: Optional[int] =
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/business/expenses")
-def get_business_expenses(anio: Optional[int] = Query(None), mes: Optional[int] = Query(None), categoria: Optional[str] = Query(None)):
+def get_business_expenses(anio: Optional[int] = Query(None), mes: Optional[int] = Query(None), categoria: Optional[str] = Query(None), user_id: str = Depends(get_user_id)):
     hoy = date.today()
     anio_q = anio or hoy.year
     mes_q = mes or hoy.month
@@ -113,7 +135,7 @@ def get_business_expenses(anio: Optional[int] = Query(None), mes: Optional[int] 
     import calendar
     ultimo_dia = f"{anio_q}-{mes_q:02d}-{calendar.monthrange(anio_q, mes_q)[1]}"
     
-    query = supabase.table('transactions').select("*").filter('entidad', 'eq', 'BUSINESS').filter('tipo', 'eq', 'EXPENSE').filter('fecha', 'gte', primer_dia).filter('fecha', 'lte', ultimo_dia)
+    query = supabase.table('transactions').select("*").filter('entidad', 'eq', 'BUSINESS').filter('tipo', 'eq', 'EXPENSE').filter('fecha', 'gte', primer_dia).filter('fecha', 'lte', ultimo_dia).filter('user_id', 'eq', user_id)
     if categoria: query = query.filter('categoria', 'eq', categoria)
     
     res = query.order('fecha', desc=True).execute()
@@ -131,7 +153,7 @@ def get_business_expenses(anio: Optional[int] = Query(None), mes: Optional[int] 
 # ─────────────────────────────────────────────
 
 @router.get("/personal/summary")
-def get_personal_summary(anio: Optional[int] = Query(None), mes: Optional[int] = Query(None)):
+def get_personal_summary(anio: Optional[int] = Query(None), mes: Optional[int] = Query(None), user_id: str = Depends(get_user_id)):
     hoy = date.today()
     anio_q = anio or hoy.year
     mes_q = mes or hoy.month
@@ -139,10 +161,10 @@ def get_personal_summary(anio: Optional[int] = Query(None), mes: Optional[int] =
     import calendar
     ultimo_dia = f"{anio_q}-{mes_q:02d}-{calendar.monthrange(anio_q, mes_q)[1]}"
     
-    res_in = supabase.table('transactions').select("monto").filter('entidad', 'eq', 'PERSONAL').filter('tipo', 'eq', 'INCOME').filter('fecha', 'gte', primer_dia).filter('fecha', 'lte', ultimo_dia).execute()
+    res_in = supabase.table('transactions').select("monto").filter('entidad', 'eq', 'PERSONAL').filter('tipo', 'eq', 'INCOME').filter('fecha', 'gte', primer_dia).filter('fecha', 'lte', ultimo_dia).filter('user_id', 'eq', user_id).execute()
     ingresos = sum(item['monto'] for item in res_in.data)
     
-    res_ex = supabase.table('transactions').select("monto").filter('entidad', 'eq', 'PERSONAL').filter('tipo', 'eq', 'EXPENSE').filter('fecha', 'gte', primer_dia).filter('fecha', 'lte', ultimo_dia).execute()
+    res_ex = supabase.table('transactions').select("monto").filter('entidad', 'eq', 'PERSONAL').filter('tipo', 'eq', 'EXPENSE').filter('fecha', 'gte', primer_dia).filter('fecha', 'lte', ultimo_dia).filter('user_id', 'eq', user_id).execute()
     gastos = sum(item['monto'] for item in res_ex.data)
     
     saldo = float(ingresos) - float(gastos)
@@ -155,7 +177,7 @@ def get_personal_summary(anio: Optional[int] = Query(None), mes: Optional[int] =
     }
 
 @router.get("/personal/expenses")
-def get_personal_expenses(anio: Optional[int] = Query(None), mes: Optional[int] = Query(None), categoria: Optional[str] = Query(None)):
+def get_personal_expenses(anio: Optional[int] = Query(None), mes: Optional[int] = Query(None), categoria: Optional[str] = Query(None), user_id: str = Depends(get_user_id)):
     hoy = date.today()
     anio_q = anio or hoy.year
     mes_q = mes or hoy.month
@@ -163,7 +185,7 @@ def get_personal_expenses(anio: Optional[int] = Query(None), mes: Optional[int] 
     import calendar
     ultimo_dia = f"{anio_q}-{mes_q:02d}-{calendar.monthrange(anio_q, mes_q)[1]}"
     
-    query = supabase.table('transactions').select("*").filter('entidad', 'eq', 'PERSONAL').filter('tipo', 'eq', 'EXPENSE').filter('fecha', 'gte', primer_dia).filter('fecha', 'lte', ultimo_dia)
+    query = supabase.table('transactions').select("*").filter('entidad', 'eq', 'PERSONAL').filter('tipo', 'eq', 'EXPENSE').filter('fecha', 'gte', primer_dia).filter('fecha', 'lte', ultimo_dia).filter('user_id', 'eq', user_id)
     if categoria: query = query.filter('categoria', 'eq', categoria)
     
     res = query.order('fecha', desc=True).execute()
@@ -176,7 +198,7 @@ def get_personal_expenses(anio: Optional[int] = Query(None), mes: Optional[int] 
 # ─────────────────────────────────────────────
 
 @router.post("/ocr/process")
-async def process_ticket_ocr(archivo: UploadFile = File(...)):
+async def process_ticket_ocr(archivo: UploadFile = File(...), user_id: str = Depends(get_user_id)):
     """
     Recibe una imagen de ticket físico, la envía a OpenAI GPT-4o Vision
     y retorna la extracción de Monto, Fecha y Concepto.
@@ -254,7 +276,8 @@ async def add_transaction(
     concepto: str = Form(...),
     fecha: str = Form(...),
     categoria: Optional[str] = Form(None),
-    archivo: Optional[UploadFile] = File(None)
+    archivo: Optional[UploadFile] = File(None),
+    user_id: str = Depends(get_user_id)
 ):
     file_url = None
     if archivo:
@@ -280,7 +303,8 @@ async def add_transaction(
         "concepto": concepto, 
         "entidad": entidad.upper(), 
         "fecha": fecha[:10], 
-        "file_url": file_url
+        "file_url": file_url,
+        "user_id": user_id
     }
     
     res = supabase.table('transactions').insert(tx_data).execute()
@@ -289,7 +313,7 @@ async def add_transaction(
     return {"status": "success", "id": new_id}
 
 @router.put("/transactions/{tx_id}")
-def update_transaction(tx_id: str, data: Dict):
+def update_transaction(tx_id: str, data: Dict, user_id: str = Depends(get_user_id)):
     update_data = {}
     if "monto" in data: update_data["monto"] = float(data["monto"])
     if "concepto" in data: update_data["concepto"] = data["concepto"]
@@ -297,19 +321,19 @@ def update_transaction(tx_id: str, data: Dict):
     if "tipo" in data: update_data["tipo"] = data["tipo"].upper()
     if "fecha" in data: update_data["fecha"] = data["fecha"][:10]
     
-    supabase.table('transactions').update(update_data).filter('id', 'eq', tx_id).execute()
+    supabase.table('transactions').update(update_data).filter('id', 'eq', tx_id).filter('user_id', 'eq', user_id).execute()
     return {"status": "success"}
 
     supabase.table('transactions').update(update_data).filter('id', 'eq', tx_id).execute()
     return {"status": "success"}
 
 @router.delete("/transactions/{tx_id}")
-def delete_transaction(tx_id: str):
-    supabase.table('transactions').delete().filter('id', 'eq', tx_id).execute()
+def delete_transaction(tx_id: str, user_id: str = Depends(get_user_id)):
+    supabase.table('transactions').delete().filter('id', 'eq', tx_id).filter('user_id', 'eq', user_id).execute()
     return {"status": "success"}
 
 @router.get("/history")
-def get_financial_history(entidad: str = Query("BUSINESS")):
+def get_financial_history(entidad: str = Query("BUSINESS"), user_id: str = Depends(get_user_id)):
     """Trend report for the last 6 months."""
     _check_supabase()
     from datetime import date, timedelta
@@ -326,14 +350,14 @@ def get_financial_history(entidad: str = Query("BUSINESS")):
         import calendar
         ultimo_dia = f"{clave_mes}-{calendar.monthrange(target_date.year, target_date.month)[1]}"
         
-        res_in = supabase.table('transactions').select("monto").filter('entidad', 'eq', entidad.upper()).filter('tipo', 'eq', 'INCOME').filter('fecha', 'gte', primer_dia).filter('fecha', 'lte', ultimo_dia).execute()
+        res_in = supabase.table('transactions').select("monto").filter('entidad', 'eq', entidad.upper()).filter('tipo', 'eq', 'INCOME').filter('fecha', 'gte', primer_dia).filter('fecha', 'lte', ultimo_dia).filter('user_id', 'eq', user_id).execute()
         income = sum(item['monto'] for item in res_in.data)
         
-        res_ex = supabase.table('transactions').select("monto").filter('entidad', 'eq', entidad.upper()).filter('tipo', 'eq', 'EXPENSE').filter('fecha', 'gte', primer_dia).filter('fecha', 'lte', ultimo_dia).execute()
+        res_ex = supabase.table('transactions').select("monto").filter('entidad', 'eq', entidad.upper()).filter('tipo', 'eq', 'EXPENSE').filter('fecha', 'gte', primer_dia).filter('fecha', 'lte', ultimo_dia).filter('user_id', 'eq', user_id).execute()
         expense = sum(item['monto'] for item in res_ex.data)
 
         # Critical OpEx (Nomina/Envia)
-        res_crit = supabase.table('transactions').select("monto").filter('entidad', 'eq', 'BUSINESS').filter('tipo', 'eq', 'EXPENSE').filter('categoria', 'in', '("nomina","envia_com")').filter('fecha', 'gte', primer_dia).filter('fecha', 'lte', ultimo_dia).execute()
+        res_crit = supabase.table('transactions').select("monto").filter('entidad', 'eq', 'BUSINESS').filter('tipo', 'eq', 'EXPENSE').filter('categoria', 'in', '("nomina","envia_com")').filter('fecha', 'gte', primer_dia).filter('fecha', 'lte', ultimo_dia).filter('user_id', 'eq', user_id).execute()
         critical_opex = sum(item['monto'] for item in res_crit.data)
         
         meses_data.append({
@@ -346,7 +370,7 @@ def get_financial_history(entidad: str = Query("BUSINESS")):
     return {"entidad": entidad.upper(), "historial": meses_data}
 
 @router.get("/bi/summary")
-def get_bi_summary(anio: Optional[int] = Query(None), mes: Optional[int] = Query(None)):
+def get_bi_summary(anio: Optional[int] = Query(None), mes: Optional[int] = Query(None), user_id: str = Depends(get_user_id)):
     """
     Business Intelligence Report: Ventas, Compras, Marketing, Comisiones.
     Calcula variación % vs mes anterior.
@@ -368,21 +392,21 @@ def get_bi_summary(anio: Optional[int] = Query(None), mes: Optional[int] = Query
     end_prev = f"{anio_p}-{mes_p:02d}-{calendar.monthrange(anio_p, mes_p)[1]}"
 
     def fetch_bi_metrics(start, end, y_anio, m_mes):
-        # 🟢 Ventas (Odoo + Manual INCOME)
+        # 🔴 Ventas (Odoo + Manual INCOME)
         ventas_odoo = sum(v.get("amount_total", 0) for v in odoo.search_read("sale.order", [["state","in",["sale","done"]],["date_order",">=",f"{start} 00:00:00"],["date_order","<=",f"{end} 23:59:59"]], ["amount_total"]))
-        res_m = supabase.table('transactions').select("monto").filter('tipo','eq','INCOME').filter('entidad','eq','BUSINESS').filter('fecha','gte',start).filter('fecha','lte',end).execute()
+        res_m = supabase.table('transactions').select("monto").filter('tipo','eq','INCOME').filter('entidad','eq','BUSINESS').filter('fecha','gte',start).filter('fecha','lte',end).filter('user_id', 'eq', user_id).execute()
         v_manual = sum(item['monto'] for item in res_m.data)
         
         # 🔴 Compras (EXPENSE + Compras/Inventario)
-        res_c = supabase.table('transactions').select("monto").filter('tipo','eq','EXPENSE').filter('entidad','eq','BUSINESS').filter('categoria','eq','compras').filter('fecha','gte',start).filter('fecha','lte',end).execute()
+        res_c = supabase.table('transactions').select("monto").filter('tipo','eq','EXPENSE').filter('entidad','eq','BUSINESS').filter('categoria','eq','compras').filter('fecha','gte',start).filter('fecha','lte',end).filter('user_id', 'eq', user_id).execute()
         compras = sum(item['monto'] for item in res_c.data)
         
         # 🔴 Marketing
-        res_mar = supabase.table('transactions').select("monto").filter('tipo','eq','EXPENSE').filter('entidad','eq','BUSINESS').filter('categoria','eq','marketing').filter('fecha','gte',start).filter('fecha','lte',end).execute()
+        res_mar = supabase.table('transactions').select("monto").filter('tipo','eq','EXPENSE').filter('entidad','eq','BUSINESS').filter('categoria','eq','marketing').filter('fecha','gte',start).filter('fecha','lte',end).filter('user_id', 'eq', user_id).execute()
         marketing = sum(item['monto'] for item in res_mar.data)
         
         # 🔴 Comisiones
-        res_com = supabase.table('transactions').select("monto").filter('tipo','eq','EXPENSE').filter('entidad','eq','BUSINESS').filter('categoria','eq','comisiones').filter('fecha','gte',start).filter('fecha','lte',end).execute()
+        res_com = supabase.table('transactions').select("monto").filter('tipo','eq','EXPENSE').filter('entidad','eq','BUSINESS').filter('categoria','eq','comisiones').filter('fecha','gte',start).filter('fecha','lte',end).filter('user_id', 'eq', user_id).execute()
         comisiones = sum(item['monto'] for item in res_com.data)
         
         return {"ventas": ventas_odoo + v_manual, "compras": compras, "marketing": marketing, "comisiones": comisiones}
@@ -404,7 +428,7 @@ def get_bi_summary(anio: Optional[int] = Query(None), mes: Optional[int] = Query
     }
 
 @router.get("/history/yearly")
-def get_yearly_history(entidad: str = "BUSINESS", anio: int = 2026):
+def get_yearly_history(entidad: str = "BUSINESS", anio: int = 2026, user_id: str = Depends(get_user_id)):
     """Evolución mensual para comparativos tipo Bar Chart."""
     _check_supabase()
     history = []
@@ -413,7 +437,7 @@ def get_yearly_history(entidad: str = "BUSINESS", anio: int = 2026):
         import calendar
         end = f"{anio}-{m:02d}-{calendar.monthrange(anio, m)[1]}"
         
-        res = supabase.table('transactions').select("monto").filter('entidad','eq',entidad.upper()).filter('tipo','eq','INCOME').filter('fecha','gte',start).filter('fecha','lte',end).execute()
+        res = supabase.table('transactions').select("monto").filter('entidad','eq',entidad.upper()).filter('tipo','eq','INCOME').filter('fecha','gte',start).filter('fecha','lte',end).filter('user_id', 'eq', user_id).execute()
         income = sum(i['monto'] for i in res.data)
         
         history.append({"mes_num": m, "mes": calendar.month_name[m][:3], "ingresos": income})
@@ -424,21 +448,22 @@ def get_yearly_history(entidad: str = "BUSINESS", anio: int = 2026):
 # ─────────────────────────────────────────────
 
 @router.get("/debts")
-def get_debts(entidad: str = "BUSINESS"):
+def get_debts(entidad: str = "BUSINESS", user_id: str = Depends(get_user_id)):
     _check_supabase()
-    res = supabase.table('debts').select("*").filter('entity_type', 'eq', entidad.upper()).filter('is_active', 'eq', 'true').execute()
+    res = supabase.table('debts').select("*").filter('entity_type', 'eq', entidad.upper()).filter('is_active', 'eq', 'true').filter('user_id', 'eq', user_id).execute()
     return {"status": "success", "data": res.data}
 
 @router.post("/debts")
-def add_debt(data: Dict):
+def add_debt(data: Dict, user_id: str = Depends(get_user_id)):
     _check_supabase()
+    data["user_id"] = user_id
     res = supabase.table('debts').insert(data).execute()
     return {"status": "success", "id": res.data[0]['id'] if res.data else None}
 
 @router.delete("/debts/{debt_id}")
-def delete_debt(debt_id: str):
+def delete_debt(debt_id: str, user_id: str = Depends(get_user_id)):
     _check_supabase()
-    supabase.table('debts').update({"is_active": False}).filter('id', 'eq', debt_id).execute()
+    supabase.table('debts').update({"is_active": False}).filter('id', 'eq', debt_id).filter('user_id', 'eq', user_id).execute()
     return {"status": "success"}
 
 # ─────────────────────────────────────────────
@@ -446,7 +471,7 @@ def delete_debt(debt_id: str):
 # ─────────────────────────────────────────────
 
 @router.get("/analysis/forecast")
-def get_cashflow_forecast(entidad: str = "BUSINESS"):
+def get_cashflow_forecast(entidad: str = "BUSINESS", user_id: str = Depends(get_user_id)):
     """
     Calcula el 'Runway' (Días de liquidez) basándose en el saldo actual
     vs. el promedio de gasto diario de los últimos 60 días.
@@ -457,13 +482,13 @@ def get_cashflow_forecast(entidad: str = "BUSINESS"):
     fecha_limite = (hoy - timedelta(days=60)).isoformat()
     
     # 1. Calcular Burn Rate (Gasto promedio diario)
-    res_ex = supabase.table('transactions').select("monto").filter('entidad', 'eq', entidad.upper()).filter('tipo', 'eq', 'EXPENSE').filter('fecha', 'gte', fecha_limite).execute()
+    res_ex = supabase.table('transactions').select("monto").filter('entidad', 'eq', entidad.upper()).filter('tipo', 'eq', 'EXPENSE').filter('fecha', 'gte', fecha_limite).filter('user_id', 'eq', user_id).execute()
     total_gasto = sum(item['monto'] for item in res_ex.data)
     daily_burn = total_gasto / 60 if total_gasto > 0 else 1 # Evitar div/0
     
     # 2. Calcular Liquidez Actual (Ingresos - Egresos histórico)
-    res_all_in = supabase.table('transactions').select("monto").filter('entidad', 'eq', entidad.upper()).filter('tipo', 'eq', 'INCOME').execute()
-    res_all_ex = supabase.table('transactions').select("monto").filter('entidad', 'eq', entidad.upper()).filter('tipo', 'eq', 'EXPENSE').execute()
+    res_all_in = supabase.table('transactions').select("monto").filter('entidad', 'eq', entidad.upper()).filter('tipo', 'eq', 'INCOME').filter('user_id', 'eq', user_id).execute()
+    res_all_ex = supabase.table('transactions').select("monto").filter('entidad', 'eq', entidad.upper()).filter('tipo', 'eq', 'EXPENSE').filter('user_id', 'eq', user_id).execute()
     
     liquidez = sum(i['monto'] for i in res_all_in.data) - sum(e['monto'] for e in res_all_ex.data)
     
@@ -477,7 +502,7 @@ def get_cashflow_forecast(entidad: str = "BUSINESS"):
     }
 
 @router.get("/analysis/reconcile")
-def get_reconciliation_report():
+def get_reconciliation_report(user_id: str = Depends(get_user_id)):
     """
     Compara registros manuales vs. detecciones de OCR para resaltar
     posibles discrepancias o gastos olvidados.
@@ -486,12 +511,12 @@ def get_reconciliation_report():
     # Esta es una lógica simplificada para v3.0: 
     # Buscamos transacciones con evidence_url (OCR) y vemos si hay registros manuales
     # con montos idénticos en fechas similares.
-    res = supabase.table('transactions').select("*").order('fecha', desc=True).limit(100).execute()
+    res = supabase.table('transactions').select("*").filter('user_id', 'eq', user_id).order('fecha', desc=True).limit(100).execute()
     all_txs = res.data
     
-    # Separar en OCR (tienen evidence_url) y Manuales (no tienen)
-    ocr_txs = [t for t in all_txs if t.get('evidence_url')]
-    manual_txs = [t for t in all_txs if not t.get('evidence_url')]
+    # Separar en OCR (tienen file_url) y Manuales (no tienen)
+    ocr_txs = [t for t in all_txs if t.get('file_url')]
+    manual_txs = [t for t in all_txs if not t.get('file_url')]
     
     discrepancias = []
     for ocr in ocr_txs:

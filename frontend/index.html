@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FinanzasOS 2.0 - LiquidGlass</title>
+    <title>HSR Control - LiquidGlass</title>
     <link rel="manifest" href="/manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -11,6 +11,7 @@
     <link rel="apple-touch-icon" href="/icon-192.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -147,7 +148,31 @@
     </style>
 </head>
 <body class="antialiased">
+    <!-- ══════════════ AUTH OVERLAY ══════════════ -->
+    <div id="auth-overlay" class="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center p-6 transition-all duration-500">
+        <div class="glass max-w-sm w-full p-10 text-center" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1)">
+            <div class="w-20 h-20 bg-white rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-2xl">
+                <span class="text-black font-black text-4xl">H</span>
+            </div>
+            <h1 class="text-3xl font-black text-white tracking-tight mb-2">HSR Control</h1>
+            <p class="text-slate-400 text-sm mb-10 font-medium">Acceso restringido a nivel corporativo.</p>
+            <button onclick="loginWithGoogle()" class="w-full bg-white text-black font-bold py-4 rounded-xl hover:bg-slate-200 transition-all flex items-center justify-center space-x-3">
+                <svg viewBox="0 0 24 24" class="w-5 h-5"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                <span>Entrar con Gmail</span>
+            </button>
+            <p id="auth-error" class="hidden text-red-400 text-xs mt-6 font-bold"></p>
+        </div>
+    </div>
 
+    <!-- ══════════════ TOAST NOTIFICATION ══════════════ -->
+    <div id="toast" class="fixed top-6 right-6 z-[200] transform transition-all duration-500 -translate-y-[150%] opacity-0">
+        <div class="bg-green-500 text-white font-bold px-6 py-4 rounded-xl shadow-2xl flex items-center space-x-3">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            <span id="toast-msg">Guardado exitoso</span>
+        </div>
+    </div>
+
+    <div id="main-app" class="hidden">
     <div class="bg-blob" style="top: -100px; left: -100px;"></div>
     <div class="bg-blob" style="bottom: -200px; right: -100px; background: radial-gradient(circle, rgba(88, 86, 214, 0.1) 0%, transparent 70%);"></div>
 
@@ -157,9 +182,9 @@
             <div class="flex items-center space-x-8">
                 <div class="flex items-center space-x-3">
                     <div class="w-9 h-9 bg-black rounded-xl flex items-center justify-center">
-                        <span class="text-white font-bold text-lg">G</span>
+                        <span class="text-white font-bold text-lg">H</span>
                     </div>
-                    <span class="text-xl font-bold tracking-tight">Finanzas<span class="text-[#007AFF]">OS</span></span>
+                    <span class="text-xl font-bold tracking-tight">HSR<span class="text-[#007AFF]">Control</span></span>
                 </div>
                 <div class="hidden md:flex space-x-6 text-slate-500">
                     <button class="hover:text-black transition-colors" onclick="switchTab('business')">Finanzas Electriganadero</button>
@@ -167,13 +192,10 @@
                     <button class="hover:text-black transition-colors" onclick="switchTab('personal')">Finanzas Personales</button>
                 </div>
             </div>
-                <div class="flex items-center space-x-3 bg-slate-100 p-1 rounded-xl">
-                    <select id="date-range-preset" onchange="handleDateFilter()" class="bg-transparent text-[11px] font-bold px-2 outline-none cursor-pointer">
-                        <option value="current_month">Mes Actual</option>
-                        <option value="last_month">Mes Anterior</option>
-                        <option value="last_quarter">Último Trimestre</option>
-                        <option value="year_2026">Año 2026</option>
-                    </select>
+                <div class="flex items-center space-x-2 bg-slate-100 p-1 rounded-xl" id="date-pill-container">
+                    <button onclick="setDatePreset('current_month')" data-val="current_month" class="date-pill active-pill px-3 py-1 text-[11px] font-bold rounded-lg bg-white shadow-sm text-black transition-all">Mes Actual</button>
+                    <button onclick="setDatePreset('last_month')" data-val="last_month" class="date-pill px-3 py-1 text-[11px] font-bold rounded-lg text-slate-500 hover:text-black hover:bg-white/50 transition-all">Mes Anterior</button>
+                    <button onclick="setDatePreset('year_2026')" data-val="year_2026" class="date-pill px-3 py-1 text-[11px] font-bold rounded-lg text-slate-500 hover:text-black hover:bg-white/50 transition-all">2026 Completo</button>
                 </div>
                 <button onclick="window.print()" class="glass px-3 py-2 rounded-xl text-slate-500 hover:text-black transition-all">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
@@ -191,7 +213,32 @@
         <!-- ═══════════════════════════════════════════════ BUSINESS VIEW -->
         <div id="view-business" class="space-y-10">
 
-        <!-- ═══════════════════════════════════════════════ KPI SUMMARY -->
+        <!-- ═══════════════════════════════════════════════ ANALYSIS & RUNWAY (MOVED TO TOP) -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="glass p-8 border-l-4 border-indigo-500">
+                <h3 class="text-lg font-bold mb-4">Cashflow Runway (Empresa)</h3>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-3xl font-black" id="runway-days">0 Días</p>
+                        <p class="text-xs text-slate-400 mt-1" id="liquidez-actual">Liquidez: $0.00</p>
+                    </div>
+                    <div id="runway-indicator" class="px-4 py-2 rounded-full text-xs font-bold bg-slate-100">Calculando...</div>
+                </div>
+                <p class="text-[10px] text-slate-400 mt-4 uppercase font-bold">Días estimados antes de agotar liquidez sin ventas nuevas</p>
+            </div>
+            <div class="glass p-8">
+                <h3 class="text-lg font-bold mb-4">Métricas de Rendimiento (ROI)</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-slate-50 p-4 rounded-2xl">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">ROI Marketing</p>
+                        <h4 class="text-xl font-black text-blue-600" id="roi-mkt">0.0x</h4>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-2xl">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">Costo Venta (%)</p>
+                        <h4 class="text-xl font-black border-orange-500" id="roi-costo">0%</h4>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <!-- ═══════════════════════════════════════════════ BI REPORTS (MoM) -->
@@ -227,33 +274,6 @@
         </section>
 
         <!-- ═══════════════════════════════════════════════ MAIN DASHBOARD -->
-        <!-- ═══════════════════════════════════════════════ ANALYSIS & RUNWAY -->
-        <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div class="glass p-8 border-l-4 border-indigo-500">
-                <h3 class="text-lg font-bold mb-4">Cashflow Runway (Empresa)</h3>
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-3xl font-black" id="runway-days">0 Días</p>
-                        <p class="text-xs text-slate-400 mt-1" id="liquidez-actual">Liquidez: $0.00</p>
-                    </div>
-                    <div id="runway-indicator" class="px-4 py-2 rounded-full text-xs font-bold bg-slate-100">Calculando...</div>
-                </div>
-                <p class="text-[10px] text-slate-400 mt-4 uppercase font-bold">Días estimados antes de agotar liquidez sin ventas nuevas</p>
-            </div>
-            <div class="glass p-8">
-                <h3 class="text-lg font-bold mb-4">Métricas de Rendimiento (ROI)</h3>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-slate-50 p-4 rounded-2xl">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase">ROI Marketing</p>
-                        <h4 class="text-xl font-black text-blue-600" id="roi-mkt">0.0x</h4>
-                    </div>
-                    <div class="bg-slate-50 p-4 rounded-2xl">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase">Costo Venta (%)</p>
-                        <h4 class="text-xl font-black text-orange-600" id="cost-sales">0%</h4>
-                    </div>
-                </div>
-            </div>
-        </section>
 
         <!-- ═══════════════════════════════════════════════ DEBTS & LIABILITIES -->
         <section id="debts-business" class="space-y-6">
@@ -311,12 +331,13 @@
             <div class="lg:col-span-2 space-y-8">
                 <!-- Transaction List moved here for better balance -->
                 <div class="glass p-8 h-full">
-                    <div class="flex justify-between items-end mb-8">
+                    <div class="flex justify-between items-end mb-4">
                         <div>
                             <h3 class="text-2xl font-extrabold" id="list-title">Movimientos</h3>
                             <p class="text-sm text-slate-400">Cloud Sync: Supabase Ready</p>
                         </div>
                     </div>
+                    <input type="search" placeholder="Buscar movimientos por concepto o categoría..." oninput="filterList('expenses-list', this.value)" class="w-full bg-[#f1f5f9] border border-transparent focus:border-[#007AFF] rounded-xl px-4 py-3 outline-none transition-all text-sm mb-6">
                     <div class="space-y-4" id="expenses-list">
                         <div class="shimmer h-12 w-full rounded-xl opacity-20"></div>
                     </div>
@@ -388,7 +409,8 @@
             <section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <!-- List -->
                 <div class="glass p-8 lg:col-span-2">
-                    <h3 class="text-2xl font-extrabold mb-8">Movimientos Hazael</h3>
+                    <h3 class="text-2xl font-extrabold mb-4">Movimientos Hazael</h3>
+                    <input type="search" placeholder="Buscar movimientos por concepto o categoría..." oninput="filterList('personal-list', this.value)" class="w-full bg-[#f1f5f9] border border-transparent focus:border-[#007AFF] rounded-xl px-4 py-3 outline-none transition-all text-sm mb-6">
                     <div class="space-y-4" id="personal-list">
                         <div class="text-center py-10 text-slate-400">Consultando movimientos...</div>
                     </div>
@@ -517,10 +539,76 @@
             </button>
         </div>
     </div>
+    </div> <!-- CLOSING MAIN APP DIV -->
 
     <script>
         const API_VERSION = "/api/v1";
         const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? "http://localhost:8000" : "";
+        const ADMIN_EMAIL = "hazael.silva.n@gmail.com"; 
+
+        // ⚠️ DEBES INSERTAR TU LLAVE PÚBLICA AQUÍ ⚠️
+        const supabaseUrl = "https://cdukdxqxfswnckzpdksu.supabase.co";
+        const supabaseAnonKey = "TU_SUPABASE_ANON_KEY_AQUI"; 
+        
+        const supabase = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseAnonKey) : null;
+        let localToken = null;
+
+        function showToast(msg = "Guardado exitoso") {
+            const t = document.getElementById('toast');
+            document.getElementById('toast-msg').textContent = msg;
+            t.classList.remove('-translate-y-[150%]', 'opacity-0');
+            setTimeout(() => { t.classList.add('-translate-y-[150%]', 'opacity-0'); }, 2000);
+        }
+
+        async function loginWithGoogle() {
+            if (!supabase) return alert("Supabase no cargado");
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: { redirectTo: window.location.origin }
+            });
+            if (error) alert("Error login: " + error.message);
+        }
+
+        async function checkAuth() {
+            if (!supabase) return;
+            const { data: { session } } = await supabase.auth.getSession();
+            handleAuthChange(session);
+            
+            supabase.auth.onAuthStateChange((_event, session) => {
+                handleAuthChange(session);
+            });
+        }
+
+        function handleAuthChange(session) {
+            const overlay = document.getElementById('auth-overlay');
+            const mainApp = document.getElementById('main-app');
+            const errEl = document.getElementById('auth-error');
+
+            if (session) {
+                if (session.user.email === ADMIN_EMAIL) {
+                    localToken = session.access_token;
+                    overlay.classList.add('opacity-0', 'pointer-events-none');
+                    mainApp.classList.remove('hidden');
+                    State.refreshUI();
+                } else {
+                    errEl.textContent = "Acceso denegado: " + session.user.email + " no está autorizado.";
+                    errEl.classList.remove('hidden');
+                    setTimeout(() => supabase.auth.signOut(), 3000);
+                }
+            } else {
+                overlay.classList.remove('opacity-0', 'pointer-events-none');
+                mainApp.classList.add('hidden');
+                localToken = null;
+            }
+        }
+
+        function filterList(targetId, query) {
+            const source = targetId === 'expenses-list' ? State.businessData : State.personalData;
+            if (!source) return;
+            const q = query.toLowerCase();
+            const filtered = source.filter(t => t.concepto.toLowerCase().includes(q) || t.categoria.toLowerCase().includes(q));
+            renderList(targetId, filtered);
+        }
 
         /**
          * FINANCE STATE MANAGER
@@ -926,9 +1014,13 @@
             }
         }
 
+        function getAuthHeaders() {
+            return localToken ? { 'Authorization': `Bearer ${localToken}` } : {};
+        }
+
         async function fetchSummary() {
             try {
-                const res = await fetch(`${API_BASE}${API_VERSION}/business/summary`);
+                const res = await fetch(`${API_BASE}${API_VERSION}/business/summary`, { headers: getAuthHeaders() });
                 const data = await res.json();
                 document.getElementById('kpi-ventas').textContent = formatMoney(data.ventas);
                 document.getElementById('kpi-compras').textContent = formatMoney(data.compras);
@@ -942,7 +1034,7 @@
 
         async function fetchPersonalSummary() {
             try {
-                const res = await fetch(`${API_BASE}${API_VERSION}/personal/summary`);
+                const res = await fetch(`${API_BASE}${API_VERSION}/personal/summary`, { headers: getAuthHeaders() });
                 const data = await res.json();
                 document.getElementById('p-kpi-ingresos').textContent = formatMoney(data.ingresos);
                 document.getElementById('p-kpi-egresos').textContent = formatMoney(data.gastos);
@@ -957,7 +1049,9 @@
             const fecha = document.getElementById('m-fecha').value || new Date().toISOString().split('T')[0];
             const categoria = document.getElementById('m-categoria').value;
 
-            if (!monto || !detalles) return alert("Completa monto y descripción");
+            if (!monto || !detalles || parseFloat(monto) <= 0) {
+                return alert("Completa el monto (mayor a 0) y descripción");
+            }
 
             const formData = new FormData();
             formData.append('monto', monto);
@@ -971,11 +1065,13 @@
             try {
                 const res = await fetch(`${API_BASE}${API_VERSION}/transactions`, {
                     method: 'POST',
+                    headers: getAuthHeaders(),
                     body: formData
                 });
                 if (res.ok) {
                     resetForm();
                     State.refreshUI();
+                    showToast();
                 } else {
                     alert("Error al registrar");
                 }
@@ -996,6 +1092,7 @@
 
                 const res = await fetch(`${API_BASE}${API_VERSION}/ocr/process`, {
                     method: 'POST',
+                    headers: getAuthHeaders(),
                     body: formData
                 });
                 const data = await res.json();
@@ -1033,14 +1130,16 @@
         }
 
         async function fetchExpenses() {
-            const res = await fetch(`${API_BASE}${API_VERSION}/business/expenses`);
+            const res = await fetch(`${API_BASE}${API_VERSION}/business/expenses`, { headers: getAuthHeaders() });
             const data = await res.json();
+            State.businessData = data.registros;
             renderList('expenses-list', data.registros);
         }
 
         async function fetchPersonalExpenses() {
-            const res = await fetch(`${API_BASE}${API_VERSION}/personal/expenses`);
+            const res = await fetch(`${API_BASE}${API_VERSION}/personal/expenses`, { headers: getAuthHeaders() });
             const data = await res.json();
+            State.personalData = data.registros;
             renderList('personal-list', data.registros);
         }
 
@@ -1072,7 +1171,7 @@
 
         async function deleteTx(id) {
             if (!confirm("Eliminar movimiento?")) return;
-            const res = await fetch(`${API_BASE}${API_VERSION}/transactions/${id}`, { method: 'DELETE' });
+            const res = await fetch(`${API_BASE}${API_VERSION}/transactions/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
             if (res.ok) State.refreshUI();
         }
 
@@ -1080,9 +1179,9 @@
             return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(n);
         }
 
-        function toggleAI() { document.getElementById('ai-panel').classList.toggle('open'); }
-
-        window.onload = () => { State.refreshUI(); };
+        window.onload = () => { 
+            checkAuth();
+        };
     </script>
 
 </body>
