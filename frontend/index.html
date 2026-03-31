@@ -105,21 +105,30 @@
         /* Modal Styles */
         .modal-overlay {
             background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(12px);
             opacity: 0;
             pointer-events: none;
-            transition: all 0.3s ease;
+            transition: all 0.35s ease;
         }
         .modal-overlay.open {
             opacity: 1;
             pointer-events: auto;
         }
         .modal-content {
-            transform: scale(0.9) translateY(20px);
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transform: scale(0.92) translateY(30px);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .modal-overlay.open .modal-content {
             transform: scale(1) translateY(0);
+        }
+
+        .bg-expense-soft { background: rgba(255, 59, 48, 0.08); border: 1px solid rgba(255, 59, 48, 0.1); }
+        .bg-income-soft { background: rgba(52, 199, 89, 0.08); border: 1px solid rgba(52, 199, 89, 0.1); }
+        
+        @keyframes liquid {
+            0% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+            50% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+            100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
         }
 
         @media print {
@@ -192,6 +201,11 @@
                     <button class="hover:text-black transition-colors" onclick="switchTab('personal')">Finanzas Personales</button>
                 </div>
             </div>
+            <div class="flex items-center space-x-4">
+                <button onclick="openTransactionModal()" class="btn-ios bg-black text-white px-6 py-2.5 rounded-full text-xs font-bold shadow-xl flex items-center space-x-2 border border-white/20">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"/></svg>
+                    <span>AÑADIR REGISTRO</span>
+                </button>
                 <div class="flex items-center space-x-2 bg-slate-100 p-1 rounded-xl" id="date-pill-container">
                     <button onclick="setDatePreset('current_month')" data-val="current_month" class="date-pill active-pill px-3 py-1 text-[11px] font-bold rounded-lg bg-white shadow-sm text-black transition-all">Mes Actual</button>
                     <button onclick="setDatePreset('last_month')" data-val="last_month" class="date-pill px-3 py-1 text-[11px] font-bold rounded-lg text-slate-500 hover:text-black hover:bg-white/50 transition-all">Mes Anterior</button>
@@ -426,55 +440,64 @@
             </section>
         </div>
 
-        <div id="shared-form-container" class="mt-10 mb-20 max-w-2xl mx-auto">
-            <div class="glass p-8">
-                <h4 class="text-xl font-bold mb-6 text-center">Nuevo Registro <span id="form-context">Empresa</span></h4>
-                
-                <!-- Toggle Type -->
-                <div class="flex bg-slate-100 p-1 rounded-2xl mb-6">
-                    <button id="type-expense" onclick="setTxType('EXPENSE')" class="flex-1 py-2 text-xs font-bold rounded-xl bg-white shadow-sm transition-all text-[#FF3B30]">EGRESO (-)</button>
-                    <button id="type-income" onclick="setTxType('INCOME')" class="flex-1 py-2 text-xs font-bold rounded-xl transition-all text-slate-500">INGRESO (+)</button>
-                </div>
+        <div id="transaction-modal" class="modal-overlay fixed inset-0 z-[300] flex items-center justify-center p-6">
+            <div class="modal-content glass w-full max-w-lg p-8 relative shadow-2xl">
+                <button onclick="closeTransactionModal()" class="absolute top-6 right-6 text-slate-400 hover:text-black transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
 
-                <div class="space-y-4">
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="space-y-1">
-                            <label class="text-[10px] font-bold text-slate-400 uppercase px-1">Fecha</label>
-                            <input type="date" id="m-fecha" class="w-full bg-white/50 border border-transparent focus:border-[#007AFF] rounded-xl px-4 py-3 outline-none transition-all text-sm">
-                        </div>
-                        <div class="space-y-1">
-                            <label class="text-[10px] font-bold text-slate-400 uppercase px-1">Monto ($)</label>
-                            <input type="number" id="m-monto" placeholder="0.00" class="w-full bg-white/50 border border-transparent focus:border-[#007AFF] rounded-xl px-4 py-3 outline-none transition-all text-sm font-bold">
-                        </div>
-                    </div>
-
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-bold text-slate-400 uppercase px-1">Categoría</label>
-                        <select id="m-categoria" class="w-full bg-white/50 border border-transparent focus:border-[#007AFF] rounded-xl px-4 py-3 outline-none transition-all text-sm appearance-none cursor-pointer">
-                            <!-- Dynamic -->
-                        </select>
-                    </div>
+                <div id="shared-form-container" class="transition-all duration-300">
+                    <h4 class="text-2xl font-black mb-8 text-center italic tracking-tight">HSR <span class="text-[#007AFF]">Control</span> — Nuevo</h4>
                     
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-bold text-slate-400 uppercase px-1">Concepto / Detalles</label>
-                        <input type="text" id="m-detalles" placeholder="..." class="w-full bg-white/50 border border-transparent focus:border-[#007AFF] rounded-xl px-4 py-3 outline-none transition-all text-sm">
+                    <!-- Toggle Type -->
+                    <div id="type-toggle-container" class="flex bg-slate-100 p-1.5 rounded-2xl mb-8 border border-slate-200">
+                        <button id="type-expense" onclick="setTxType('EXPENSE')" class="flex-1 py-3 text-[11px] font-black rounded-xl transition-all shadow-sm bg-white text-[#FF3B30]">EGRESO (-)</button>
+                        <button id="type-income" onclick="setTxType('INCOME')" class="flex-1 py-3 text-[11px] font-black rounded-xl transition-all text-slate-400">INGRESO (+)</button>
                     </div>
 
-                    <div id="drop-zone" class="border-2 border-dashed border-slate-200 rounded-2xl p-4 text-center cursor-pointer hover:bg-[#007AFF]/5 hover:border-[#007AFF] transition-all" 
-                         onclick="document.getElementById('m-archivo').click()">
-                        <div class="flex flex-col items-center space-y-2">
-                            <svg class="w-6 h-6 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase">Adjuntar Comprobante</p>
-                            <span id="file-name" class="text-xs text-[#007AFF] hidden font-medium"></span>
+                    <div class="space-y-6">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Fecha</label>
+                                <input type="date" id="m-fecha" class="w-full bg-white/40 border border-slate-100 focus:border-[#007AFF] rounded-xl px-4 py-3 outline-none transition-all text-sm font-medium">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Monto ($)</label>
+                                <input type="number" id="m-monto" placeholder="0.00" class="w-full bg-white/40 border border-slate-100 focus:border-[#007AFF] rounded-xl px-4 py-3 outline-none transition-all text-sm font-black">
+                            </div>
                         </div>
-                        <input type="file" id="m-archivo" class="hidden" onchange="handleFileSelect(this)">
-                    </div>
 
-                    <div class="grid grid-cols-2 gap-3 mt-4">
-                        <button onclick="scanWithAI()" class="btn-ios bg-slate-900 text-white py-3 rounded-xl font-bold text-[11px] flex items-center justify-center space-x-2">
-                            <span>ESCANEAR IA</span>
-                        </button>
-                        <button onclick="registerTransaction()" class="btn-ios btn-primary-ios py-3 rounded-xl font-bold text-[11px]">GUARDAR</button>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Categoría</label>
+                            <select id="m-categoria" class="w-full bg-white/40 border border-slate-100 focus:border-[#007AFF] rounded-xl px-4 py-3 outline-none transition-all text-sm font-semibold appearance-none cursor-pointer">
+                                <!-- Dynamic -->
+                            </select>
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Concepto / Detalles</label>
+                            <input type="text" id="m-detalles" placeholder="¿En qué gastamos?" class="w-full bg-white/40 border border-slate-100 focus:border-[#007AFF] rounded-xl px-4 py-3 outline-none transition-all text-sm font-medium">
+                        </div>
+
+                        <div id="drop-zone" class="group border-2 border-dashed border-slate-200 rounded-2xl p-6 text-center cursor-pointer hover:bg-[#007AFF]/5 hover:border-[#007AFF] transition-all bg-white/20" 
+                             onclick="document.getElementById('m-archivo').click()">
+                            <div class="flex flex-col items-center space-y-3">
+                                <div class="p-3 bg-white rounded-full shadow-sm group-hover:scale-110 transition-transform">
+                                    <svg class="w-6 h-6 text-[#007AFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                </div>
+                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Extraer datos con IA</p>
+                                <span id="file-name" class="text-xs text-[#007AFF] hidden font-medium"></span>
+                            </div>
+                            <input type="file" id="m-archivo" class="hidden" accept="image/*,application/pdf" capture="camera" onchange="handleFileSelect(this)">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 mt-8">
+                            <button onclick="scanWithAI()" class="btn-ios bg-slate-900 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center space-x-2 hover:bg-black transition-all">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                                <span>ESCANEAR IA</span>
+                            </button>
+                            <button onclick="registerTransaction()" class="btn-ios btn-primary-ios py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg">REGISTRAR</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -644,8 +667,20 @@
             setTxType(type) {
                 this.txType = type;
                 const isExpense = type === 'EXPENSE';
-                document.getElementById('type-expense').className = `flex-1 py-2 text-xs font-bold rounded-xl transition-all ${isExpense ? 'bg-white shadow-sm text-[#FF3B30]' : 'text-slate-500'}`;
-                document.getElementById('type-income').className = `flex-1 py-2 text-xs font-bold rounded-xl transition-all ${!isExpense ? 'bg-white shadow-sm text-[#34C759]' : 'text-slate-500'}`;
+                
+                const btnExp = document.getElementById('type-expense');
+                const btnInc = document.getElementById('type-income');
+                const container = document.getElementById('type-toggle-container');
+
+                if (isExpense) {
+                    btnExp.className = "flex-1 py-3 text-[11px] font-black rounded-xl transition-all shadow-sm bg-white text-[#FF3B30]";
+                    btnInc.className = "flex-1 py-3 text-[11px] font-black rounded-xl transition-all text-slate-400";
+                    if (container) container.style.background = "rgba(255, 59, 48, 0.05)";
+                } else {
+                    btnExp.className = "flex-1 py-3 text-[11px] font-black rounded-xl transition-all text-slate-400";
+                    btnInc.className = "flex-1 py-3 text-[11px] font-black rounded-xl transition-all shadow-sm bg-white text-[#34C759]";
+                    if (container) container.style.background = "rgba(52, 199, 89, 0.05)";
+                }
             }
 
             async refreshUI() {
@@ -653,7 +688,7 @@
                 document.getElementById('view-business').classList.toggle('hidden', this.context !== 'business');
                 document.getElementById('view-personal').classList.toggle('hidden', this.context !== 'personal');
                 
-                document.getElementById('form-context').textContent = this.context === 'business' ? 'Empresa' : 'Personal';
+                // document.getElementById('form-context').textContent = this.context === 'business' ? 'Empresa' : 'Personal';
 
                 // Update Nav UI
                 document.querySelectorAll('nav button').forEach(btn => {
@@ -1079,6 +1114,7 @@
                 });
                 if (res.ok) {
                     resetForm();
+                    closeTransactionModal();
                     State.refreshUI();
                     showToast();
                 } else {
@@ -1210,6 +1246,23 @@
             };
             initSB();
         };
+
+        // ═══════════════════════════════════════════════════ MODAL LOGIC
+        function openTransactionModal() {
+            resetForm();
+            document.getElementById('m-fecha').value = new Date().toISOString().split('T')[0];
+            document.getElementById('transaction-modal').classList.add('open');
+            updateFormCategories(State.context);
+            // Default appearance
+            State.setTxType('EXPENSE');
+        }
+
+        function closeTransactionModal() {
+            document.getElementById('transaction-modal').classList.remove('open');
+        }
+
+        // Global wrapper for class method callers in HTML
+        function setTxType(type) { State.setTxType(type); }
     </script>
 
 </body>

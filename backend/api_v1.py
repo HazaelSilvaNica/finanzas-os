@@ -67,10 +67,10 @@ async def process_document_with_gemini(file_content: bytes, mime_type: str):
     - monto: (Number) El total pagado.
     - fecha: (ISO format YYYY-MM-DD)
     - concepto: (Nombre del establecimiento o comercio)
-    - categoria: (Sugerencia basada en: nomina, marketing, logistica, servicios, insumos, renta, software_ia, otros)
+    - categoria: (Sugerencia basada en: nomina, marketing, logistica, servicios, insumos, renta, software_ia, comisiones, impuestos, otros)
     - entidad: ('BUSINESS' si es ElectriGanadero/Logística/Negocio, 'PERSONAL' si es gasto personal/hogar)
     
-    Si es un estado de cuenta Banamex, identifica específicamente comisiones bancarias o pagos de impuestos (IVA/ISR).
+    Si es un estado de cuenta Banamex o similar, identifica específicamente comisiones bancarias o pagos de impuestos (IVA/ISR).
     Si no encuentras un campo, devuelve null.
     """
     
