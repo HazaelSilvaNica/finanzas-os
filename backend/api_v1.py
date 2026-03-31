@@ -28,7 +28,7 @@ def get_user_id(authorization: str = Header(None)):
             raise HTTPException(status_code=401, detail="Invalid session")
         
         # Restricción de correo admin
-        admin_email = "hazael.silva.n@gmail.com"
+        admin_email = "hazaelsilvanica@gmail.com"
         if user_res.user.email != admin_email:
             raise HTTPException(status_code=403, detail="Acceso denegado: Usuario no autorizado")
             
