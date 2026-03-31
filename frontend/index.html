@@ -546,9 +546,9 @@
         const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? "http://localhost:8000" : "";
         const ADMIN_EMAIL = "hazael.silva.n@gmail.com"; 
 
-        // ⚠️ DEBES INSERTAR TU LLAVE PÚBLICA AQUÍ ⚠️
+        // ⚠️ LLAVE PÚBLICA ACTIVADA ⚠️
         const supabaseUrl = "https://cdukdxqxfswnckzpdksu.supabase.co";
-        const supabaseAnonKey = "TU_SUPABASE_ANON_KEY_AQUI"; 
+        const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkdWtkeHF4ZnN3bmNrenBka3N1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5NTk2NjQsImV4cCI6MjA5MDUzNTY2NH0.1FFgX38ZWd2I4Yr89_DbEMQh9ESoBfqQcvXjUacfZV8"; 
         
         const supabase = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseAnonKey) : null;
         let localToken = null;
