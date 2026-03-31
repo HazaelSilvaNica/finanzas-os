@@ -122,6 +122,21 @@
             transform: scale(1) translateY(0);
         }
 
+        /* Responsive Modal (Bottom Sheet) */
+        @media (max-width: 768px) {
+            .modal-content {
+                position: absolute;
+                bottom: 0;
+                width: 100%;
+                border-radius: 32px 32px 0 0;
+                transform: translateY(100%);
+            }
+            .modal-overlay.open .modal-content {
+                transform: translateY(0);
+            }
+            .modal-content { padding: 1.5rem !important; }
+        }
+
         .bg-expense-soft { background: rgba(255, 59, 48, 0.08); border: 1px solid rgba(255, 59, 48, 0.1); }
         .bg-income-soft { background: rgba(52, 199, 89, 0.08); border: 1px solid rgba(52, 199, 89, 0.1); }
         
@@ -153,6 +168,24 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
             animation: pulse-glow 3s infinite;
         }
+
+        .btn-fab-ios {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 64px;
+            height: 64px;
+            border-radius: 22px;
+            background: #000;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 100;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-fab-ios:active { transform: scale(0.9); }
 
         @keyframes pulse-glow {
             0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
@@ -235,27 +268,27 @@
     <div class="bg-blob" style="bottom: -200px; right: -100px; background: radial-gradient(circle, rgba(88, 86, 214, 0.1) 0%, transparent 70%);"></div>
 
     <!-- ═══════════════════════════════════════════════════ NAVBAR -->
-    <nav class="glass-nav sticky top-0 z-50 px-6 py-4">
+    <nav class="glass-nav sticky top-0 z-50 px-4 sm:px-6 py-4">
         <div class="max-w-7xl mx-auto flex justify-between items-center text-sm font-medium">
-            <div class="flex items-center space-x-8">
+            <div class="flex items-center space-x-4 sm:space-x-8">
                 <div class="flex items-center space-x-3">
-                    <div class="w-9 h-9 bg-black rounded-xl flex items-center justify-center">
+                    <div class="w-9 h-9 bg-black rounded-xl flex items-center justify-center shrink-0">
                         <span class="text-white font-bold text-lg">H</span>
                     </div>
-                    <span class="text-xl font-bold tracking-tight">HSR<span class="text-[#007AFF]">Control</span></span>
+                    <span class="text-xl font-bold tracking-tight hidden sm:inline">HSR<span class="text-[#007AFF]">Control</span></span>
                 </div>
-                <div class="hidden md:flex space-x-6 text-slate-500">
+                <div class="hidden lg:flex space-x-6 text-slate-500">
                     <button class="hover:text-black transition-colors" onclick="switchTab('business')">Finanzas Electriganadero</button>
                     <button class="hover:text-black transition-colors" onclick="switchTab('personal')">Finanzas Personales</button>
                 </div>
             </div>
-            <div class="flex items-center space-x-4">
-                <button onclick="openTransactionModal()" class="btn-ios btn-liquid-glass px-6 py-2.5 rounded-full text-xs font-bold shadow-sm">
+            <div class="flex items-center space-x-2 sm:space-x-4">
+                <button onclick="openTransactionModal()" class="hidden sm:flex btn-ios btn-liquid-glass px-6 py-2.5 rounded-full text-xs font-bold shadow-sm">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"/></svg>
                     <span>AÑADIR REGISTRO</span>
                 </button>
                 
-                <select id="date-range-preset" onchange="handleDateFilter()" class="glass-select">
+                <select id="date-range-preset" onchange="handleDateFilter()" class="glass-select max-w-[120px] sm:max-w-none">
                     <option value="current_month">Marzo 2026</option>
                     <option value="last_month">Febrero 2026</option>
                     <option value="jan_2026">Enero 2026</option>
@@ -264,79 +297,85 @@
                     <option value="year_2026">2026 Completo</option>
                 </select>
 
-                <button onclick="window.print()" class="glass px-3 py-2 rounded-xl text-slate-500 hover:text-black transition-all">
+                <button onclick="window.print()" class="hidden sm:block glass px-3 py-2 rounded-xl text-slate-500 hover:text-black transition-all">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                 </button>
 
-                <button onclick="toggleAI()" class="btn-ios btn-ai-ian px-5 py-2 rounded-full text-xs font-bold flex items-center space-x-2">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                    <span>Preguntar a Ian</span>
+                <button onclick="toggleAI()" class="btn-ios btn-ai-ian px-4 sm:px-5 py-2.5 min-h-[44px] rounded-full text-[10px] sm:text-xs font-bold flex items-center space-x-2">
+                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    <span class="hidden xs:inline">Preguntar a Ian</span>
+                    <span class="xs:hidden">Ian</span>
                 </button>
             </div>
         </div>
     </nav>
+    
+    <!-- Mobile FAB -->
+    <button onclick="openTransactionModal()" class="sm:hidden btn-fab-ios">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"/></svg>
+    </button>
 
-    <main class="max-w-7xl mx-auto px-6 py-10">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
 
         <!-- ═══════════════════════════════════════════════ BUSINESS VIEW -->
-        <div id="view-business" class="space-y-10">
+        <div id="view-business" class="space-y-6 sm:space-y-10">
 
-        <!-- ═══════════════════════════════════════════════ ANALYSIS & RUNWAY (MOVED TO TOP) -->
-        <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div class="glass p-8 border-l-4 border-indigo-500">
-                <h3 class="text-lg font-bold mb-4">Cashflow Runway (Empresa)</h3>
+        <!-- ═══════════════════════════════════════════════ ANALYSIS & RUNWAY -->
+        <section class="grid grid-cols-1 lg:grid-cols-4 gap-6 sm:gap-8">
+            <div class="glass p-6 sm:p-8 border-l-4 border-indigo-500 lg:col-span-3">
+                <h3 class="text-sm sm:text-lg font-bold mb-4">Cashflow Runway (Empresa)</h3>
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-3xl font-black" id="runway-days">0 Días</p>
-                        <p class="text-xs text-slate-400 mt-1" id="liquidez-actual">Liquidez: $0.00</p>
+                        <p class="text-2xl sm:text-3xl font-black" id="runway-days">0 Días</p>
+                        <p class="text-[10px] sm:text-xs text-slate-400 mt-1" id="liquidez-actual">Liquidez: $0.00</p>
                     </div>
-                    <div id="runway-indicator" class="px-4 py-2 rounded-full text-xs font-bold bg-slate-100">Calculando...</div>
+                    <div id="runway-indicator" class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-[10px] sm:text-xs font-bold bg-slate-100 shrink-0 min-h-[32px] flex items-center">Calculando...</div>
                 </div>
-                <p class="text-[10px] text-slate-400 mt-4 uppercase font-bold">Días estimados antes de agotar liquidez sin ventas nuevas</p>
+                <p class="text-[10px] text-slate-400 mt-4 uppercase font-bold">Días estimados antes de agotar liquidez</p>
             </div>
-            <div class="glass p-8">
-                <h3 class="text-lg font-bold mb-4">Métricas de Rendimiento (ROI)</h3>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-slate-50 p-4 rounded-2xl">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase">ROI Marketing</p>
-                        <h4 class="text-xl font-black text-blue-600" id="roi-mkt">0.0x</h4>
+            <div class="glass p-6 sm:p-8">
+                <h3 class="text-sm sm:text-lg font-bold mb-4">ROI</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
+                    <div class="bg-slate-50 p-3 sm:p-4 rounded-2xl min-h-[60px] flex flex-col justify-center">
+                        <p class="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase">Mkt ROI</p>
+                        <h4 class="text-lg sm:text-xl font-black text-blue-600" id="roi-mkt">0.0x</h4>
                     </div>
-                    <div class="bg-slate-50 p-4 rounded-2xl">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase">Costo Venta (%)</p>
-                        <h4 class="text-xl font-black border-orange-500" id="roi-costo">0%</h4>
+                    <div class="bg-slate-50 p-3 sm:p-4 rounded-2xl min-h-[60px] flex flex-col justify-center">
+                        <p class="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase">Costo %</p>
+                        <h4 class="text-lg sm:text-xl font-black text-orange-500" id="roi-costo">0%</h4>
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- ═══════════════════════════════════════════════ BI REPORTS (MoM) -->
-        <section id="bi-section" class="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div class="glass p-5 border-l-4 border-blue-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Ventas (BI)</p>
-                <div class="flex items-baseline space-x-2">
-                    <h4 class="text-xl font-black" id="bi-ventas">$0</h4>
-                    <span class="text-[10px] font-bold" id="bi-ventas-var">0%</span>
+        <section id="bi-section" class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            <div class="glass p-4 sm:p-5 border-l-4 border-blue-500">
+                <p class="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase mb-1">Ventas</p>
+                <div class="flex items-baseline space-x-1 sm:space-x-2">
+                    <h4 class="text-base sm:text-xl font-black" id="bi-ventas">$0</h4>
+                    <span class="text-[8px] sm:text-[10px] font-bold" id="bi-ventas-var">0%</span>
                 </div>
             </div>
-            <div class="glass p-5 border-l-4 border-orange-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Compras/Inv</p>
-                <div class="flex items-baseline space-x-2">
-                    <h4 class="text-xl font-black" id="bi-compras">$0</h4>
-                    <span class="text-[10px] font-bold" id="bi-compras-var">0%</span>
+            <div class="glass p-4 sm:p-5 border-l-4 border-orange-500">
+                <p class="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase mb-1">Compras</p>
+                <div class="flex items-baseline space-x-1 sm:space-x-2">
+                    <h4 class="text-base sm:text-xl font-black" id="bi-compras">$0</h4>
+                    <span class="text-[8px] sm:text-[10px] font-bold" id="bi-compras-var">0%</span>
                 </div>
             </div>
-            <div class="glass p-5 border-l-4 border-pink-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Marketing</p>
-                <div class="flex items-baseline space-x-2">
-                    <h4 class="text-xl font-black" id="bi-marketing">$0</h4>
-                    <span class="text-[10px] font-bold" id="bi-marketing-var">0%</span>
+            <div class="glass p-4 sm:p-5 border-l-4 border-pink-500">
+                <p class="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase mb-1">Marketing</p>
+                <div class="flex items-baseline space-x-1 sm:space-x-2">
+                    <h4 class="text-base sm:text-xl font-black" id="bi-marketing">$0</h4>
+                    <span class="text-[8px] sm:text-[10px] font-bold" id="bi-marketing-var">0%</span>
                 </div>
             </div>
-            <div class="glass p-5 border-l-4 border-purple-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Comisiones</p>
-                <div class="flex items-baseline space-x-2">
-                    <h4 class="text-xl font-black" id="bi-comisiones">$0</h4>
-                    <span class="text-[10px] font-bold" id="bi-comisiones-var">0%</span>
+            <div class="glass p-4 sm:p-5 border-l-4 border-purple-500">
+                <p class="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase mb-1">Comisiones</p>
+                <div class="flex items-baseline space-x-1 sm:space-x-2">
+                    <h4 class="text-base sm:text-xl font-black" id="bi-comisiones">$0</h4>
+                    <span class="text-[8px] sm:text-[10px] font-bold" id="bi-comisiones-var">0%</span>
                 </div>
             </div>
         </section>
@@ -494,7 +533,7 @@
             </section>
         </div>
 
-        <div id="transaction-modal" class="modal-overlay fixed inset-0 z-[300] flex items-center justify-center p-6">
+        <div id="transaction-modal" class="modal-overlay fixed inset-0 z-[300] flex sm:items-center items-end justify-center sm:p-6 p-0">
             <div class="modal-content glass w-full max-w-lg p-8 relative shadow-2xl">
                 <button onclick="closeTransactionModal()" class="absolute top-6 right-6 text-slate-400 hover:text-black transition-colors">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -546,11 +585,11 @@
                         </div>
 
                         <div class="grid grid-cols-2 gap-4 mt-8">
-                            <button onclick="scanWithAI()" class="btn-ios bg-slate-900 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center space-x-2 hover:bg-black transition-all">
+                            <button onclick="scanWithAI()" class="btn-ios bg-slate-900 text-white min-h-[50px] rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center space-x-2 hover:bg-black transition-all">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                                 <span>ESCANEAR IA</span>
                             </button>
-                            <button onclick="registerTransaction()" class="btn-ios btn-primary-ios py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg">REGISTRAR</button>
+                            <button onclick="registerTransaction()" class="btn-ios btn-primary-ios min-h-[50px] rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg">REGISTRAR</button>
                         </div>
                     </div>
                 </div>
@@ -560,7 +599,7 @@
     </main>
 
     <!-- ═══════════════════════════════════════════════════ EDIT MODAL -->
-    <div id="edit-modal" class="modal-overlay fixed inset-0 z-[200] flex items-center justify-center p-6">
+    <div id="edit-modal" class="modal-overlay fixed inset-0 z-[200] flex sm:items-center items-end justify-center sm:p-6 p-0">
         <div class="modal-content glass w-full max-w-md p-8 relative">
             <h3 class="text-2xl font-extrabold mb-6">Editar Registro</h3>
             <input type="hidden" id="edit-id">
