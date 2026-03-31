@@ -125,6 +125,55 @@
         .bg-expense-soft { background: rgba(255, 59, 48, 0.08); border: 1px solid rgba(255, 59, 48, 0.1); }
         .bg-income-soft { background: rgba(52, 199, 89, 0.08); border: 1px solid rgba(52, 199, 89, 0.1); }
         
+        /* NEW: Liquid Glass & AI Styles */
+        .btn-liquid-glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05), inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+            color: #1d1d1f;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-liquid-glass:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .btn-ai-ian {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: pulse-glow 3s infinite;
+        }
+
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+        }
+
+        .glass-select {
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            padding: 6px 12px;
+            font-size: 11px;
+            font-weight: 700;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .glass-select:hover { background: rgba(255, 255, 255, 0.8); }
+
         @keyframes liquid {
             0% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
             50% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
@@ -197,26 +246,31 @@
                 </div>
                 <div class="hidden md:flex space-x-6 text-slate-500">
                     <button class="hover:text-black transition-colors" onclick="switchTab('business')">Finanzas Electriganadero</button>
-                    <button class="hover:text-black transition-colors" onclick="switchTab('expenses')">Gastos / PDF</button>
                     <button class="hover:text-black transition-colors" onclick="switchTab('personal')">Finanzas Personales</button>
                 </div>
             </div>
             <div class="flex items-center space-x-4">
-                <button onclick="openTransactionModal()" class="btn-ios bg-black text-white px-6 py-2.5 rounded-full text-xs font-bold shadow-xl flex items-center space-x-2 border border-white/20">
+                <button onclick="openTransactionModal()" class="btn-ios btn-liquid-glass px-6 py-2.5 rounded-full text-xs font-bold shadow-sm">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"/></svg>
                     <span>AÑADIR REGISTRO</span>
                 </button>
-                <div class="flex items-center space-x-2 bg-slate-100 p-1 rounded-xl" id="date-pill-container">
-                    <button onclick="setDatePreset('current_month')" data-val="current_month" class="date-pill active-pill px-3 py-1 text-[11px] font-bold rounded-lg bg-white shadow-sm text-black transition-all">Mes Actual</button>
-                    <button onclick="setDatePreset('last_month')" data-val="last_month" class="date-pill px-3 py-1 text-[11px] font-bold rounded-lg text-slate-500 hover:text-black hover:bg-white/50 transition-all">Mes Anterior</button>
-                    <button onclick="setDatePreset('year_2026')" data-val="year_2026" class="date-pill px-3 py-1 text-[11px] font-bold rounded-lg text-slate-500 hover:text-black hover:bg-white/50 transition-all">2026 Completo</button>
-                </div>
+                
+                <select id="date-range-preset" onchange="handleDateFilter()" class="glass-select">
+                    <option value="current_month">Marzo 2026</option>
+                    <option value="last_month">Febrero 2026</option>
+                    <option value="jan_2026">Enero 2026</option>
+                    <option value="dec_2025">Diciembre 2025</option>
+                    <option value="nov_2025">Noviembre 2025</option>
+                    <option value="year_2026">2026 Completo</option>
+                </select>
+
                 <button onclick="window.print()" class="glass px-3 py-2 rounded-xl text-slate-500 hover:text-black transition-all">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                 </button>
-                <button onclick="toggleAI()" class="btn-ios btn-primary-ios px-5 py-2 rounded-full text-xs font-bold flex items-center space-x-2">
+
+                <button onclick="toggleAI()" class="btn-ios btn-ai-ian px-5 py-2 rounded-full text-xs font-bold flex items-center space-x-2">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                    <span>Asistente IA</span>
+                    <span>Preguntar a Ian</span>
                 </button>
             </div>
         </div>
@@ -725,27 +779,6 @@
         //  UI & CHART LOGIC
         // ─────────────────────────────────────────────────────
         function switchTab(tab) { State.setContext(tab); }
-        
-        function handleDateFilter() {
-            const preset = document.getElementById('date-range-preset').value;
-            const now = new Date();
-            if (preset === 'current_month') {
-                State.month = now.getMonth() + 1;
-                State.year = now.getFullYear();
-            } else if (preset === 'last_month') {
-                const last = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-                State.month = last.getMonth() + 1;
-                State.year = last.getFullYear();
-            } else if (preset === 'last_quarter') {
-                // Simplificado: ver últimos 3 meses
-                State.month = null; 
-                State.year = now.getFullYear();
-            } else if (preset === 'year_2026') {
-                State.year = 2026;
-                State.month = null;
-            }
-            State.refreshUI();
-        }
         function handleFileSelect(input) {
             State.selectedFile = input.files[0];
             const nameSpan = document.getElementById('file-name');
@@ -1261,7 +1294,95 @@
             document.getElementById('transaction-modal').classList.remove('open');
         }
 
-        // Global wrapper for class method callers in HTML
+        // ═══════════════════════════════════════════════════ AI & DATE HELPERS
+        function handleDateFilter() {
+            const preset = document.getElementById('date-range-preset').value;
+            const now = new Date();
+            // Reset to defaults
+            State.month = null;
+            State.year = 2026;
+
+            switch(preset) {
+                case 'current_month':
+                    State.month = 3; // March 2026
+                    break;
+                case 'last_month':
+                    State.month = 2; // February 2026
+                    break;
+                case 'jan_2026':
+                    State.month = 1;
+                    break;
+                case 'dec_2025':
+                    State.month = 12;
+                    State.year = 2025;
+                    break;
+                case 'nov_2025':
+                    State.month = 11;
+                    State.year = 2025;
+                    break;
+                case 'year_2026':
+                    State.month = null;
+                    State.year = 2026;
+                    break;
+            }
+            State.refreshUI();
+        }
+
+        function toggleAI() {
+            const panel = document.getElementById('ai-panel');
+            panel.classList.toggle('open');
+        }
+
+        async function getAIAdvice() {
+            const btnText = document.getElementById('ai-btn-text');
+            const loader = document.getElementById('ai-loader');
+            const msgContainer = document.getElementById('ai-messages');
+
+            try {
+                btnText.textContent = "Analizando...";
+                loader.classList.remove('hidden');
+
+                // Collect context data from UI
+                const isBusiness = State.context === 'business';
+                const data = isBusiness ? {
+                    ventas: document.getElementById('kpi-ventas').textContent,
+                    compras: document.getElementById('kpi-compras').textContent,
+                    opex: document.getElementById('kpi-opex').textContent,
+                    margen: document.getElementById('kpi-margen').textContent,
+                    runway: document.getElementById('runway-days').textContent,
+                    roi_mkt: document.getElementById('roi-mkt').textContent
+                } : {
+                    ingresos: document.getElementById('p-kpi-ingresos').textContent,
+                    egresos: document.getElementById('p-kpi-egresos').textContent,
+                    saldo: document.getElementById('p-kpi-saldo').textContent,
+                    ahorro: document.getElementById('p-kpi-ahorro').textContent
+                };
+
+                const res = await fetch(`${API_BASE}${API_VERSION}/ai/advice`, {
+                    method: 'POST',
+                    headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ context: State.context, data: data })
+                });
+
+                const result = await res.json();
+                
+                // Add message to chat
+                const msgDiv = document.createElement('div');
+                msgDiv.className = "bg-white/80 p-5 rounded-2xl border border-blue-100 text-sm leading-relaxed shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-500";
+                msgDiv.innerHTML = `<span class="text-[10px] font-black text-blue-600 block mb-2 uppercase tracking-widest">Ian — Reporte Estratégico</span>` + result.advice;
+                
+                msgContainer.prepend(msgDiv);
+                
+                btnText.textContent = "Generar Nuevo Reporte";
+            } catch (e) {
+                console.error(e);
+                alert("Error al contactar a Ian");
+                btnText.textContent = "Reintentar";
+            } finally {
+                loader.classList.add('hidden');
+            }
+        }
+
         function setTxType(type) { State.setTxType(type); }
     </script>
 

@@ -619,3 +619,37 @@ def get_reconciliation_report(user_id: str = Depends(get_user_id)):
             })
             
     return {"status": "success", "discrepancies_found": len(discrepancias), "items": discrepancias}
+
+@router.post("/ai/advice")
+async def get_ai_advice(payload: Dict, user_id: str = Depends(get_user_id)):
+    """
+    Ian - El Asistente Financiero. Proporciona consejos basados en los datos actuales.
+    """
+    context = payload.get("context", "business")
+    data = payload.get("data", {})
+    
+    model = genai.GenerativeModel('gemini-1.5-flash')
+    
+    prompt = f"""
+    Eres Ian, el Asesor Financiero Senior de HSR Control. Tu cliente es Hazael Silva.
+    Analiza los siguientes datos financieros de su contexto {context.upper()}:
+    
+    DATOS ACTUALES:
+    {data}
+    
+    INSTRUCCIONES:
+    1. Sé directo, profesional y pro-activo.
+    2. Identifica 2-3 áreas de oportunidad o riesgos (ej. ROI bajo, runway corto, gastos elevados en categorías específicas).
+    3. Proporciona consejos accionables para optimizar el flujo de caja o el patrimonio personal.
+    4. Responde en español, usando un tono de confianza y experto.
+    5. Formatea la respuesta en HTML ligero (usando <strong>, <p> y <ul class='list-disc pl-5'>) para que se vea bien en el chat.
+    
+    No des explicaciones genéricas; usa los números proporcionados para ser específico.
+    """
+    
+    try:
+        response = model.generate_content(prompt)
+        return {"advice": response.text}
+    except Exception as e:
+        logger.error(f"AI Advice error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Ian está pensando demasiado, intenta de nuevo.")
