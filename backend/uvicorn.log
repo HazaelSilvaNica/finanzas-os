@@ -2312,3 +2312,5 @@ INFO:     Finished server process [24920]
 INFO:     Started server process [24930]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
+INFO:     127.0.0.1:65356 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65356 - "GET /manifest.json HTTP/1.1" 200 OK

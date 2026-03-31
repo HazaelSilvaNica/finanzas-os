@@ -550,34 +550,49 @@
         const supabaseUrl = "https://cdukdxqxfswnckzpdksu.supabase.co";
         const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkdWtkeHF4ZnN3bmNrenBka3N1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5NTk2NjQsImV4cCI6MjA5MDUzNTY2NH0.1FFgX38ZWd2I4Yr89_DbEMQh9ESoBfqQcvXjUacfZV8"; 
         
-        const supabase = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseAnonKey) : null;
-        let localToken = null;
+        // Variables globales
+        window.supabaseInstance = null;
+        window.localToken = null;
 
         function showToast(msg = "Guardado exitoso") {
             const t = document.getElementById('toast');
-            document.getElementById('toast-msg').textContent = msg;
-            t.classList.remove('-translate-y-[150%]', 'opacity-0');
-            setTimeout(() => { t.classList.add('-translate-y-[150%]', 'opacity-0'); }, 2000);
+            if (t) {
+                document.getElementById('toast-msg').textContent = msg;
+                t.classList.remove('-translate-y-[150%]', 'opacity-0');
+                setTimeout(() => { t.classList.add('-translate-y-[150%]', 'opacity-0'); }, 2000);
+            }
         }
 
         async function loginWithGoogle() {
-            if (!supabase) return alert("Supabase no cargado");
-            const { error } = await supabase.auth.signInWithOAuth({
-                provider: 'google',
-                options: { redirectTo: window.location.origin }
-            });
-            if (error) alert("Error login: " + error.message);
+            try {
+                if (!window.supabaseInstance) {
+                    alert("⚠️ Error Interno: El cliente de Supabase no se cargó correctamente. Verifica tu conexión.");
+                    return;
+                }
+                const { error } = await window.supabaseInstance.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: { 
+                        redirectTo: window.location.origin
+                    }
+                });
+                if (error) alert("Error login: " + error.message);
+            } catch (err) {
+                alert("Error crítico al intentar loguear: " + err.message);
+            }
         }
+        // Exportar a global
+        window.loginWithGoogle = loginWithGoogle;
 
         async function checkAuth() {
-            if (!supabase) return;
-            const { data: { session } } = await supabase.auth.getSession();
+            if (!window.supabaseInstance) return;
+            const { data: { session } } = await window.supabaseInstance.auth.getSession();
             handleAuthChange(session);
             
-            supabase.auth.onAuthStateChange((_event, session) => {
+            window.supabaseInstance.auth.onAuthStateChange((_event, session) => {
                 handleAuthChange(session);
             });
         }
+        window.checkAuth = checkAuth;
 
         function handleAuthChange(session) {
             const overlay = document.getElementById('auth-overlay');
@@ -586,21 +601,22 @@
 
             if (session) {
                 if (session.user.email === ADMIN_EMAIL) {
-                    localToken = session.access_token;
+                    window.localToken = session.access_token;
                     overlay.classList.add('opacity-0', 'pointer-events-none');
                     mainApp.classList.remove('hidden');
                     State.refreshUI();
                 } else {
                     errEl.textContent = "Acceso denegado: " + session.user.email + " no está autorizado.";
                     errEl.classList.remove('hidden');
-                    setTimeout(() => supabase.auth.signOut(), 3000);
+                    setTimeout(() => window.supabaseInstance.auth.signOut(), 3000);
                 }
             } else {
                 overlay.classList.remove('opacity-0', 'pointer-events-none');
                 mainApp.classList.add('hidden');
-                localToken = null;
+                window.localToken = null;
             }
         }
+        window.handleAuthChange = handleAuthChange;
 
         function filterList(targetId, query) {
             const source = targetId === 'expenses-list' ? State.businessData : State.personalData;
@@ -1015,7 +1031,7 @@
         }
 
         function getAuthHeaders() {
-            return localToken ? { 'Authorization': `Bearer ${localToken}` } : {};
+            return window.localToken ? { 'Authorization': `Bearer ${window.localToken}` } : {};
         }
 
         async function fetchSummary() {
@@ -1180,7 +1196,21 @@
         }
 
         window.onload = () => { 
-            checkAuth();
+            console.log("HSR Control — Inyectando sesión de seguridad...");
+            const initSB = () => {
+                try {
+                    const client = window.supabase;
+                    if (client && client.createClient) {
+                        window.supabaseInstance = client.createClient(supabaseUrl, supabaseAnonKey);
+                        console.log("✅ Supabase Listo.");
+                        window.checkAuth();
+                    } else {
+                        console.error("❌ Supabase no se encuentra.");
+                        setTimeout(initSB, 500); // Reintento si CDN tarda
+                    }
+                } catch (e) { console.error("Error init:", e); }
+            };
+            initSB();
         };
     </script>
 
