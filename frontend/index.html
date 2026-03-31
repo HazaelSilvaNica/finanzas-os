@@ -522,79 +522,43 @@
         <div class="flex justify-between items-center mb-10">
             <h3 class="text-2xl font-extrabold">Asistente Gemini</h3>
             <button onclick="toggleAI()" class="text-slate-400 hover:text-black">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-            </button>
-        </div>
-        
-        <div id="ai-messages" class="flex-1 overflow-y-auto space-y-6 pr-2">
-            <div class="bg-white/50 p-5 rounded-2xl border border-white/30 text-sm leading-relaxed">
-                👋 Hola Hazael. Estoy analizando tus finanzas de Marzo 2026. <strong>¿Quieres una recomendación sobre cómo optimizar el OpEx o el margen neto?</strong>
-            </div>
-        </div>
-
-        <div class="mt-8 relative">
-            <button onclick="getAIAdvice()" class="w-full btn-ios btn-primary-ios py-4 rounded-2xl font-bold flex items-center justify-center space-x-3">
-                <span id="ai-btn-text">Generar Reporte IA</span>
-                <div id="ai-loader" class="hidden w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-            </button>
-        </div>
-    </div>
-    </div> <!-- CLOSING MAIN APP DIV -->
-
-    <script>
+              <script>
+        // 1. CONFIGURACIÓN Y ESTADO GLOBAL
         const API_VERSION = "/api/v1";
         const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? "http://localhost:8000" : "";
         const ADMIN_EMAIL = "hazael.silva.n@gmail.com"; 
 
-        // ⚠️ LLAVE PÚBLICA ACTIVADA ⚠️
         const supabaseUrl = "https://cdukdxqxfswnckzpdksu.supabase.co";
         const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkdWtkeHF4ZnN3bmNrenBka3N1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5NTk2NjQsImV4cCI6MjA5MDUzNTY2NH0.1FFgX38ZWd2I4Yr89_DbEMQh9ESoBfqQcvXjUacfZV8"; 
         
-        // Variables globales
         window.supabaseInstance = null;
         window.localToken = null;
 
-        function showToast(msg = "Guardado exitoso") {
-            const t = document.getElementById('toast');
-            if (t) {
-                document.getElementById('toast-msg').textContent = msg;
-                t.classList.remove('-translate-y-[150%]', 'opacity-0');
-                setTimeout(() => { t.classList.add('-translate-y-[150%]', 'opacity-0'); }, 2000);
-            }
-        }
-
-        async function loginWithGoogle() {
+        // 2. FUNCIONES DE SEGURIDAD (CRÍTICAS PARA EL BOTÓN)
+        window.loginWithGoogle = async function() {
             try {
                 if (!window.supabaseInstance) {
-                    alert("⚠️ Error Interno: El cliente de Supabase no se cargó correctamente. Verifica tu conexión.");
+                    alert("⚠️ Sistema cargando... intenta en 2 segundos.");
                     return;
                 }
                 const { error } = await window.supabaseInstance.auth.signInWithOAuth({
                     provider: 'google',
-                    options: { 
-                        redirectTo: window.location.origin
-                    }
+                    options: { redirectTo: window.location.origin }
                 });
                 if (error) alert("Error login: " + error.message);
             } catch (err) {
-                alert("Error crítico al intentar loguear: " + err.message);
+                alert("Error crítico: " + err.message);
             }
-        }
-        // Exportar a global
-        window.loginWithGoogle = loginWithGoogle;
+        };
 
-        async function checkAuth() {
+        window.checkAuth = async function() {
             if (!window.supabaseInstance) return;
             const { data: { session } } = await window.supabaseInstance.auth.getSession();
-            handleAuthChange(session);
-            
-            window.supabaseInstance.auth.onAuthStateChange((_event, session) => {
-                handleAuthChange(session);
-            });
-        }
-        window.checkAuth = checkAuth;
+            window.handleAuthChange(session);
+            window.supabaseInstance.auth.onAuthStateChange((_event, session) => window.handleAuthChange(session));
+        };
 
-        function handleAuthChange(session) {
+        window.handleAuthChange = function(session) {
             const overlay = document.getElementById('auth-overlay');
             const mainApp = document.getElementById('main-app');
             const errEl = document.getElementById('auth-error');
@@ -604,7 +568,7 @@
                     window.localToken = session.access_token;
                     overlay.classList.add('opacity-0', 'pointer-events-none');
                     mainApp.classList.remove('hidden');
-                    State.refreshUI();
+                    if (typeof State !== 'undefined') State.refreshUI();
                 } else {
                     errEl.textContent = "Acceso denegado: " + session.user.email + " no está autorizado.";
                     errEl.classList.remove('hidden');
@@ -615,8 +579,18 @@
                 mainApp.classList.add('hidden');
                 window.localToken = null;
             }
+        };
+        
+        // 3. UI HELPERS
+        function showToast(msg = "Guardado exitoso") {
+            const t = document.getElementById('toast');
+            if (t) {
+                const msgEl = document.getElementById('toast-msg');
+                if (msgEl) msgEl.textContent = msg;
+                t.classList.remove('-translate-y-[150%]', 'opacity-0');
+                setTimeout(() => { t.classList.add('-translate-y-[150%]', 'opacity-0'); }, 2000);
+            }
         }
-        window.handleAuthChange = handleAuthChange;
 
         function filterList(targetId, query) {
             const source = targetId === 'expenses-list' ? State.businessData : State.personalData;
@@ -625,6 +599,7 @@
             const filtered = source.filter(t => t.concepto.toLowerCase().includes(q) || t.categoria.toLowerCase().includes(q));
             renderList(targetId, filtered);
         }
+
 
         /**
          * FINANCE STATE MANAGER
