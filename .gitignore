@@ -1,0 +1,9 @@
+# Odoo environment secrets
+.env
+__pycache__/
+*.pyc
+
+# Local development
+node_modules/
+dist/
+.DS_Store

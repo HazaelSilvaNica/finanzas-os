@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinanzasOS 2.0 - LiquidGlass</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="FinanzasOS">
+    <link rel="apple-touch-icon" href="/icon-192.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --ios-blue: #007AFF;
+            --ios-green: #34C759;
+            --ios-red: #FF3B30;
+            --ios-yellow: #FFCC00;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: #1d1d1f;
+            overflow-x: hidden;
+        }
+
+        /* Background Animated Circles */
+        .bg-blob {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(0, 122, 255, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: -1;
+            filter: blur(80px);
+            animation: move 20s infinite alternate;
+        }
+
+        @keyframes move {
+            from { transform: translate(-10%, -10%); }
+            to { transform: translate(20%, 20%); }
+        }
+
+        /* Glassmorphism Classes */
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(25px) saturate(180%);
+            -webkit-backdrop-filter: blur(25px) saturate(180%);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        }
+
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        /* Premium Buttons */
+        .btn-ios {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-ios:active { transform: scale(0.95); opacity: 0.8; }
+        
+        .btn-primary-ios {
+            background: linear-gradient(180deg, #007AFF 0%, #0056b3 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+        }
+
+        /* Semáforo States */
+        .health-green { border-left: 8px solid var(--ios-green); }
+        .health-yellow { border-left: 8px solid var(--ios-yellow); }
+        .health-red { border-left: 8px solid var(--ios-red); }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
+
+        .ai-sidebar {
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            transform: translateX(100%);
+        }
+        .ai-sidebar.open { transform: translateX(0); }
+
+        /* Animation for loading */
+        .shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+
+        /* Modal Styles */
+        .modal-overlay {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-content {
+            transform: scale(0.9) translateY(20px);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .modal-overlay.open .modal-content {
+            transform: scale(1) translateY(0);
+        }
+
+        @media print {
+            nav, button, #shared-form-container, #ai-panel, #connection-status, #date-range-preset, .bg-blob { display: none !important; }
+            body { background: white !important; padding: 0 !important; font-family: 'Inter', system-ui, sans-serif !important; }
+            .glass { 
+                backdrop-filter: none !important; 
+                background: white !important; 
+                border: 2px solid #000 !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                margin-bottom: 30px !important;
+                break-inside: avoid !important;
+                padding: 20px !important;
+            }
+            main { max-width: 100% !important; width: 100% !important; padding: 30px !important; margin: 0 !important; }
+            .grid { display: block !important; }
+            h1, h2, h3, h4 { color: black !important; border-bottom: 2px solid #000 !important; padding-bottom: 5px !important; margin-bottom: 20px !important; text-transform: uppercase !important; }
+            canvas { max-height: 250px !important; width: 100% !important; margin-bottom: 30px !important; }
+            #runway-indicator { border: 2px solid #000 !important; color: black !important; background: transparent !important; }
+            .font-black, .font-bold { color: black !important; }
+            .text-red-500, .text-blue-600, .text-green-500 { color: black !important; border-bottom: 1px dotted #000; }
+            /* Numerics with mono for alignment */
+            .font-black { font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, monospace !important; }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="bg-blob" style="top: -100px; left: -100px;"></div>
+    <div class="bg-blob" style="bottom: -200px; right: -100px; background: radial-gradient(circle, rgba(88, 86, 214, 0.1) 0%, transparent 70%);"></div>
+
+    <!-- ═══════════════════════════════════════════════════ NAVBAR -->
+    <nav class="glass-nav sticky top-0 z-50 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center text-sm font-medium">
+            <div class="flex items-center space-x-8">
+                <div class="flex items-center space-x-3">
+                    <div class="w-9 h-9 bg-black rounded-xl flex items-center justify-center">
+                        <span class="text-white font-bold text-lg">G</span>
+                    </div>
+                    <span class="text-xl font-bold tracking-tight">Finanzas<span class="text-[#007AFF]">OS</span></span>
+                </div>
+                <div class="hidden md:flex space-x-6 text-slate-500">
+                    <button class="hover:text-black transition-colors" onclick="switchTab('business')">Finanzas Electriganadero</button>
+                    <button class="hover:text-black transition-colors" onclick="switchTab('expenses')">Gastos / PDF</button>
+                    <button class="hover:text-black transition-colors" onclick="switchTab('personal')">Finanzas Personales</button>
+                </div>
+            </div>
+                <div class="flex items-center space-x-3 bg-slate-100 p-1 rounded-xl">
+                    <select id="date-range-preset" onchange="handleDateFilter()" class="bg-transparent text-[11px] font-bold px-2 outline-none cursor-pointer">
+                        <option value="current_month">Mes Actual</option>
+                        <option value="last_month">Mes Anterior</option>
+                        <option value="last_quarter">Último Trimestre</option>
+                        <option value="year_2026">Año 2026</option>
+                    </select>
+                </div>
+                <button onclick="window.print()" class="glass px-3 py-2 rounded-xl text-slate-500 hover:text-black transition-all">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                </button>
+                <button onclick="toggleAI()" class="btn-ios btn-primary-ios px-5 py-2 rounded-full text-xs font-bold flex items-center space-x-2">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    <span>Asistente IA</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-6 py-10">
+
+        <!-- ═══════════════════════════════════════════════ BUSINESS VIEW -->
+        <div id="view-business" class="space-y-10">
+
+        <!-- ═══════════════════════════════════════════════ KPI SUMMARY -->
+        </section>
+
+        <!-- ═══════════════════════════════════════════════ BI REPORTS (MoM) -->
+        <section id="bi-section" class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="glass p-5 border-l-4 border-blue-500">
+                <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Ventas (BI)</p>
+                <div class="flex items-baseline space-x-2">
+                    <h4 class="text-xl font-black" id="bi-ventas">$0</h4>
+                    <span class="text-[10px] font-bold" id="bi-ventas-var">0%</span>
+                </div>
+            </div>
+            <div class="glass p-5 border-l-4 border-orange-500">
+                <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Compras/Inv</p>
+                <div class="flex items-baseline space-x-2">
+                    <h4 class="text-xl font-black" id="bi-compras">$0</h4>
+                    <span class="text-[10px] font-bold" id="bi-compras-var">0%</span>
+                </div>
+            </div>
+            <div class="glass p-5 border-l-4 border-pink-500">
+                <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Marketing</p>
+                <div class="flex items-baseline space-x-2">
+                    <h4 class="text-xl font-black" id="bi-marketing">$0</h4>
+                    <span class="text-[10px] font-bold" id="bi-marketing-var">0%</span>
+                </div>
+            </div>
+            <div class="glass p-5 border-l-4 border-purple-500">
+                <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Comisiones</p>
+                <div class="flex items-baseline space-x-2">
+                    <h4 class="text-xl font-black" id="bi-comisiones">$0</h4>
+                    <span class="text-[10px] font-bold" id="bi-comisiones-var">0%</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════ MAIN DASHBOARD -->
+        <!-- ═══════════════════════════════════════════════ ANALYSIS & RUNWAY -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="glass p-8 border-l-4 border-indigo-500">
+                <h3 class="text-lg font-bold mb-4">Cashflow Runway (Empresa)</h3>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-3xl font-black" id="runway-days">0 Días</p>
+                        <p class="text-xs text-slate-400 mt-1" id="liquidez-actual">Liquidez: $0.00</p>
+                    </div>
+                    <div id="runway-indicator" class="px-4 py-2 rounded-full text-xs font-bold bg-slate-100">Calculando...</div>
+                </div>
+                <p class="text-[10px] text-slate-400 mt-4 uppercase font-bold">Días estimados antes de agotar liquidez sin ventas nuevas</p>
+            </div>
+            <div class="glass p-8">
+                <h3 class="text-lg font-bold mb-4">Métricas de Rendimiento (ROI)</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-slate-50 p-4 rounded-2xl">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">ROI Marketing</p>
+                        <h4 class="text-xl font-black text-blue-600" id="roi-mkt">0.0x</h4>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-2xl">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">Costo Venta (%)</p>
+                        <h4 class="text-xl font-black text-orange-600" id="cost-sales">0%</h4>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════ DEBTS & LIABILITIES -->
+        <section id="debts-business" class="space-y-6">
+            <div class="flex justify-between items-center px-2">
+                <h3 class="text-xl font-bold flex items-center space-x-2">
+                    <svg class="w-5 h-5 text-[#FF3B30]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span>Control de Pasivos y Deudas (Bus)</span>
+                </h3>
+                <button onclick="toggleDebtForm('business')" class="text-xs font-bold text-[#007AFF]">+ AÑADIR DEUDA</button>
+            </div>
+            <div id="debts-list-business" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Dynamic debts -->
+            </div>
+        </section>
+ 
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="glass p-8 lg:col-span-2">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold">Tendencia 6 Meses</h3>
+                    <div class="flex space-x-2">
+                        <span class="flex items-center space-x-1 text-[10px] font-bold text-slate-400">
+                            <span class="w-2 h-2 rounded-full bg-[#007AFF]"></span>
+                            <span>Ventas/Ingresos</span>
+                        </span>
+                        <span class="flex items-center space-x-1 text-[10px] font-bold text-slate-400">
+                            <span class="w-2 h-2 rounded-full bg-[#FF3B30]"></span>
+                            <span>Gastos</span>
+                        </span>
+                        <span class="flex items-center space-x-1 text-[10px] font-bold text-slate-400">
+                            <span class="w-2 h-2 rounded-full bg-[#5856D6]"></span>
+                            <span>Nómina/Envíos</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="h-[300px]">
+                    <canvas id="financialDashboard"></canvas>
+                </div>
+            </div>
+            <!-- NEW PRO VISUALIZATION: Bar Chart 2026 -->
+            <div class="glass p-8">
+                <h3 class="text-xl font-bold mb-6">Ventas 2026 Evolution</h3>
+                <div class="h-[300px]">
+                    <canvas id="salesEvolutionChart"></canvas>
+                </div>
+            </div>
+        </section>
+ 
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="glass p-8">
+                <h3 class="text-xl font-bold mb-6">Distribución de Gastos</h3>
+                <div class="h-[250px] flex items-center justify-center">
+                    <canvas id="expenseDistribution"></canvas>
+                </div>
+            </div>
+            <div class="lg:col-span-2 space-y-8">
+                <!-- Transaction List moved here for better balance -->
+                <div class="glass p-8 h-full">
+                    <div class="flex justify-between items-end mb-8">
+                        <div>
+                            <h3 class="text-2xl font-extrabold" id="list-title">Movimientos</h3>
+                            <p class="text-sm text-slate-400">Cloud Sync: Supabase Ready</p>
+                        </div>
+                    </div>
+                    <div class="space-y-4" id="expenses-list">
+                        <div class="shimmer h-12 w-full rounded-xl opacity-20"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+    </div>
+
+        <!-- ═══════════════════════════════════════════════ PERSONAL VIEW 2.0 -->
+        <div id="view-personal" class="hidden space-y-10">
+        <!-- ═══════════════════════════════════════════════ DEBTS & LIABILITIES PERSONAL -->
+        <section id="debts-personal" class="space-y-6">
+            <div class="flex justify-between items-center px-2">
+                <h3 class="text-xl font-bold">Pasivos y Deudas (Per)</h3>
+                <button onclick="toggleDebtForm('personal')" class="text-xs font-bold text-[#007AFF]">+ AÑADIR DEUDA</button>
+            </div>
+            <div id="debts-list-personal" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Dynamic debts -->
+            </div>
+        </section>
+            <section class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <!-- KPI Card Personal 2.0 -->
+                <div class="glass p-6 health-green">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">Ingresos Mes</p>
+                    <h2 class="text-2xl font-black" id="p-kpi-ingresos">$0.00</h2>
+                </div>
+                <div class="glass p-6">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">Egresos Mes</p>
+                    <h2 class="text-2xl font-black text-[#FF3B30]" id="p-kpi-egresos">$0.00</h2>
+                </div>
+                <div class="glass p-6">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">Saldo Neto</p>
+                    <h2 class="text-2xl font-black" id="p-kpi-saldo">$0.00</h2>
+                </div>
+                <div class="glass p-6 bg-blue-600 text-white">
+                    <p class="text-[10px] font-bold text-white/60 uppercase mb-2">Tasa de Ahorro</p>
+                    <h2 class="text-4xl font-black" id="p-kpi-ahorro">0%</h2>
+                </div>
+            </section>
+
+            <section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- History & Dist -->
+                <div class="glass p-8 lg:col-span-2">
+                    <h3 class="text-xl font-bold mb-6">Tendencia Personal</h3>
+                    <div class="h-[300px]">
+                        <canvas id="personalHistoryChart"></canvas>
+                    </div>
+                </div>
+                <div class="glass p-8">
+                    <h3 class="text-xl font-bold mb-6">Categorías</h3>
+                    <div class="h-[250px] flex items-center justify-center">
+                        <canvas id="personalDonutChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- NEW PRO VISUALIZATION: Bar Chart 2026 Personal -->
+                <div class="glass p-8 lg:col-span-3">
+                    <h3 class="text-xl font-bold mb-6">Ingresos 2026 Evolution (Personal)</h3>
+                    <div class="h-[300px]">
+                        <canvas id="personalEvolutionChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- List -->
+                <div class="glass p-8 lg:col-span-2">
+                    <h3 class="text-2xl font-extrabold mb-8">Movimientos Hazael</h3>
+                    <div class="space-y-4" id="personal-list">
+                        <div class="text-center py-10 text-slate-400">Consultando movimientos...</div>
+                    </div>
+                </div>
+                
+                <!-- Shared Form is already on the sidebar in business view, 
+                     but we ensure it works for both. In mobile it stays visible? 
+                     Typically we'd put it here too if symmetric. -->
+                <div class="glass p-8 bg-blue-50/30">
+                    <h4 class="text-lg font-bold">Consejo Patrimonial</h4>
+                    <p class="text-sm text-slate-500 mt-2">Basado en tus retiros de ATM, podrías ahorrar un 5% extra limitando el efectivo.</p>
+                </div>
+            </section>
+        </div>
+
+        <div id="shared-form-container" class="mt-10 mb-20 max-w-2xl mx-auto">
+            <div class="glass p-8">
+                <h4 class="text-xl font-bold mb-6 text-center">Nuevo Registro <span id="form-context">Empresa</span></h4>
+                
+                <!-- Toggle Type -->
+                <div class="flex bg-slate-100 p-1 rounded-2xl mb-6">
+                    <button id="type-expense" onclick="setTxType('EXPENSE')" class="flex-1 py-2 text-xs font-bold rounded-xl bg-white shadow-sm transition-all text-[#FF3B30]">EGRESO (-)</button>
+                    <button id="type-income" onclick="setTxType('INCOME')" class="flex-1 py-2 text-xs font-bold rounded-xl transition-all text-slate-500">INGRESO (+)</button>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase px-1">Fecha</label>
+                            <input type="date" id="m-fecha" class="w-full bg-white/50 border border-transparent focus:border-[#007AFF] rounded-xl px-4 py-3 outline-none transition-all text-sm">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase px-1">Monto ($)</label>
+                            <input type="number" id="m-monto" placeholder="0.00" class="w-full bg-white/50 border border-transparent focus:border-[#007AFF] rounded-xl px-4 py-3 outline-none transition-all text-sm font-bold">
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase px-1">Categoría</label>
+                        <select id="m-categoria" class="w-full bg-white/50 border border-transparent focus:border-[#007AFF] rounded-xl px-4 py-3 outline-none transition-all text-sm appearance-none cursor-pointer">
+                            <!-- Dynamic -->
+                        </select>
+                    </div>
+                    
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase px-1">Concepto / Detalles</label>
+                        <input type="text" id="m-detalles" placeholder="..." class="w-full bg-white/50 border border-transparent focus:border-[#007AFF] rounded-xl px-4 py-3 outline-none transition-all text-sm">
+                    </div>
+
+                    <div id="drop-zone" class="border-2 border-dashed border-slate-200 rounded-2xl p-4 text-center cursor-pointer hover:bg-[#007AFF]/5 hover:border-[#007AFF] transition-all" 
+                         onclick="document.getElementById('m-archivo').click()">
+                        <div class="flex flex-col items-center space-y-2">
+                            <svg class="w-6 h-6 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase">Adjuntar Comprobante</p>
+                            <span id="file-name" class="text-xs text-[#007AFF] hidden font-medium"></span>
+                        </div>
+                        <input type="file" id="m-archivo" class="hidden" onchange="handleFileSelect(this)">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 mt-4">
+                        <button onclick="scanWithAI()" class="btn-ios bg-slate-900 text-white py-3 rounded-xl font-bold text-[11px] flex items-center justify-center space-x-2">
+                            <span>ESCANEAR IA</span>
+                        </button>
+                        <button onclick="registerTransaction()" class="btn-ios btn-primary-ios py-3 rounded-xl font-bold text-[11px]">GUARDAR</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ═══════════════════════════════════════════════════ EDIT MODAL -->
+    <div id="edit-modal" class="modal-overlay fixed inset-0 z-[200] flex items-center justify-center p-6">
+        <div class="modal-content glass w-full max-w-md p-8 relative">
+            <h3 class="text-2xl font-extrabold mb-6">Editar Registro</h3>
+            <input type="hidden" id="edit-id">
+            <div class="space-y-4">
+                <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">Concepto Principal</label>
+                    <select id="edit-categoria" class="w-full bg-white/50 border border-slate-200 rounded-xl px-4 py-3 text-sm">
+                        <option value="comisiones">Comisiones</option>
+                        <option value="envia_com">Envíos de Envía.com</option>
+                        <option value="nomina">Nómina</option>
+                        <option value="renta">Renta</option>
+                        <option value="servicios">Servicios</option>
+                        <option value="software">Software/IA</option>
+                        <option value="marketing">Marketing</option>
+                        <option value="otros">Otros</option>
+                    </select>
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">Detalle / Nombre</label>
+                    <input type="text" id="edit-concepto" class="w-full bg-white/50 border border-slate-200 rounded-xl px-4 py-3 text-sm">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">Monto ($)</label>
+                    <input type="number" id="edit-monto" class="w-full bg-white/50 border border-slate-200 rounded-xl px-4 py-3 text-sm">
+                </div>
+                <div class="flex space-x-3 mt-6">
+                    <button onclick="closeEditModal()" class="flex-1 bg-slate-100 hover:bg-slate-200 py-3 rounded-xl font-bold text-sm transition-colors">Cancelar</button>
+                    <button onclick="updateExpense()" class="flex-1 btn-primary-ios py-3 rounded-xl font-bold text-sm">Guardar Cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════ AI SIDEBAR -->
+    <div id="ai-panel" class="ai-sidebar fixed top-0 right-0 h-full w-full md:w-[450px] glass z-[100] p-8 shadow-2xl flex flex-col">
+        <div class="flex justify-between items-center mb-10">
+            <h3 class="text-2xl font-extrabold">Asistente Gemini</h3>
+            <button onclick="toggleAI()" class="text-slate-400 hover:text-black">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        
+        <div id="ai-messages" class="flex-1 overflow-y-auto space-y-6 pr-2">
+            <div class="bg-white/50 p-5 rounded-2xl border border-white/30 text-sm leading-relaxed">
+                👋 Hola Hazael. Estoy analizando tus finanzas de Marzo 2026. <strong>¿Quieres una recomendación sobre cómo optimizar el OpEx o el margen neto?</strong>
+            </div>
+        </div>
+
+        <div class="mt-8 relative">
+            <button onclick="getAIAdvice()" class="w-full btn-ios btn-primary-ios py-4 rounded-2xl font-bold flex items-center justify-center space-x-3">
+                <span id="ai-btn-text">Generar Reporte IA</span>
+                <div id="ai-loader" class="hidden w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const API_VERSION = "/api/v1";
+        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? "http://localhost:8000" : "";
+
+        /**
+         * FINANCE STATE MANAGER
+         * Centraliza el estado y la lógica de refresco visual
+         */
+        class FinanceState {
+            constructor() {
+                this.context = 'business'; // business | personal
+                this.txType = 'EXPENSE';   // EXPENSE | INCOME
+                this.month = new Date().getMonth() + 1;
+                this.year = new Date().getFullYear();
+                this.selectedFile = null;
+                this.charts = {
+                    history: null,
+                    distribution: null
+                };
+            }
+
+            async setContext(ctx) {
+                this.context = ctx;
+                this.refreshUI();
+            }
+
+            setTxType(type) {
+                this.txType = type;
+                const isExpense = type === 'EXPENSE';
+                document.getElementById('type-expense').className = `flex-1 py-2 text-xs font-bold rounded-xl transition-all ${isExpense ? 'bg-white shadow-sm text-[#FF3B30]' : 'text-slate-500'}`;
+                document.getElementById('type-income').className = `flex-1 py-2 text-xs font-bold rounded-xl transition-all ${!isExpense ? 'bg-white shadow-sm text-[#34C759]' : 'text-slate-500'}`;
+            }
+
+            async refreshUI() {
+                // Switch Tabs Visibility
+                document.getElementById('view-business').classList.toggle('hidden', this.context !== 'business');
+                document.getElementById('view-personal').classList.toggle('hidden', this.context !== 'personal');
+                
+                document.getElementById('form-context').textContent = this.context === 'business' ? 'Empresa' : 'Personal';
+
+                // Update Nav UI
+                document.querySelectorAll('nav button').forEach(btn => {
+                    const isMatch = (this.context === 'business' && btn.textContent.includes('Electriganadero')) || 
+                                    (this.context === 'personal' && btn.textContent.includes('Personales'));
+                    btn.className = isMatch ? 'text-black font-black' : 'text-slate-400 font-medium hover:text-black transition-colors';
+                });
+
+                updateFormCategories(this.context);
+                
+                if (this.context === 'business') {
+                    await fetchSummary();
+                    await fetchBISummary();
+                    await fetchAnalytics();
+                    await fetchDebts('business');
+                    await fetchExpenses();
+                    await updateLineChart('business', 'financialDashboard');
+                    await updateYearlyChart('business', 'salesEvolutionChart');
+                    await updateDonutChart('business', 'expenseDistribution');
+                } else {
+                    await fetchPersonalSummary();
+                    await fetchPersonalExpenses();
+                    await fetchDebts('personal');
+                    await updateLineChart('personal', 'personalHistoryChart');
+                    await updateYearlyChart('personal', 'personalEvolutionChart');
+                    await updateDonutChart('personal', 'personalDonutChart');
+                }
+            }
+        }
+
+        const State = new FinanceState();
+
+        // ─────────────────────────────────────────────────────
+        //  UI & CHART LOGIC
+        // ─────────────────────────────────────────────────────
+        function switchTab(tab) { State.setContext(tab); }
+        
+        function handleDateFilter() {
+            const preset = document.getElementById('date-range-preset').value;
+            const now = new Date();
+            if (preset === 'current_month') {
+                State.month = now.getMonth() + 1;
+                State.year = now.getFullYear();
+            } else if (preset === 'last_month') {
+                const last = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                State.month = last.getMonth() + 1;
+                State.year = last.getFullYear();
+            } else if (preset === 'last_quarter') {
+                // Simplificado: ver últimos 3 meses
+                State.month = null; 
+                State.year = now.getFullYear();
+            } else if (preset === 'year_2026') {
+                State.year = 2026;
+                State.month = null;
+            }
+            State.refreshUI();
+        }
+        function handleFileSelect(input) {
+            State.selectedFile = input.files[0];
+            const nameSpan = document.getElementById('file-name');
+            if (State.selectedFile) {
+                nameSpan.textContent = `📎 ${State.selectedFile.name}`;
+                nameSpan.classList.remove('hidden');
+            } else {
+                nameSpan.classList.add('hidden');
+            }
+        }
+
+        async function updateLineChart(entidad, canvasId) {
+            try {
+                const res = await fetch(`${API_BASE}${API_VERSION}/history?entidad=${entidad}`);
+                const data = await res.json();
+                
+                const ctx = document.getElementById(canvasId).getContext('2d');
+                if (State.charts[canvasId]) State.charts[canvasId].destroy();
+
+                const datasets = [
+                    {
+                        label: entidad === 'business' ? 'Ventas' : 'Ingresos',
+                        data: data.historial.map(h => h.ingresos),
+                        borderColor: '#007AFF',
+                        backgroundColor: 'rgba(0,122,255,0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 3,
+                        pointRadius: 4
+                    },
+                    {
+                        label: entidad === 'business' ? 'Gastos Totales' : 'Egresos',
+                        data: data.historial.map(h => h.egresos),
+                        borderColor: '#FF3B30',
+                        backgroundColor: 'rgba(255,59,48,0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 3,
+                        pointRadius: 4
+                    }
+                ];
+
+                if (entidad === 'business') {
+                    datasets.push({
+                        label: 'Nómina/Envíos',
+                        data: data.historial.map(h => h.critical_opex),
+                        borderColor: '#5856D6',
+                        borderDash: [5, 5],
+                        fill: false,
+                        tension: 0.4,
+                        borderWidth: 2,
+                        pointRadius: 3
+                    });
+                }
+
+                State.charts[canvasId] = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.historial.map(h => h.mes),
+                        datasets: datasets
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { 
+                            legend: { 
+                                display: true, 
+                                position: 'top',
+                                labels: { font: { size: 10, weight: 'bold' }, boxWidth: 10, usePointStyle: true }
+                            } 
+                        },
+                        scales: {
+                            y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 } } },
+                            x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+                        }
+                    }
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        async function updateDonutChart(entidad, canvasId) {
+            try {
+                const endpoint = entidad === 'business' ? '/business/expenses' : '/personal/expenses';
+                const res = await fetch(`${API_BASE}${API_VERSION}${endpoint}`);
+                const data = await res.json();
+                
+                // Agrupar por categoría
+                const group = {};
+                data.registros.forEach(r => {
+                    group[r.categoria] = (group[r.categoria] || 0) + r.monto;
+                });
+
+                const ctx = document.getElementById(canvasId).getContext('2d');
+                if (State.charts[canvasId]) State.charts[canvasId].destroy();
+
+                State.charts[canvasId] = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(group),
+                        datasets: [{
+                            data: Object.values(group),
+                            backgroundColor: ['#007AFF', '#34C759', '#FF3B30', '#5856D6', '#FF9500', '#AF52DE', '#FF2D55', '#5AC8FA'],
+                            borderWidth: 0,
+                            hoverOffset: 10
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '70%',
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        // ─────────────────────────────────────────────────────
+        //  CORE API ACTIONS
+        // ─────────────────────────────────────────────────────
+        async function fetchBISummary() {
+            try {
+                const res = await fetch(`${API_BASE}${API_VERSION}/bi/summary?anio=${State.year || ''}&mes=${State.month || ''}`);
+                const data = await res.json();
+                const m = data.metrics;
+                
+                const updateEl = (id, val, v_id, vari) => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = formatMoney(val);
+                    const vEl = document.getElementById(v_id);
+                    if (vEl) {
+                        const word = vari >= 0 ? 'más' : 'menos';
+                        const absVari = Math.abs(vari);
+                        vEl.textContent = `${absVari}% ${word} que mes anterior`;
+                        vEl.className = `text-[10px] font-bold ${vari >= 0 ? 'text-red-500' : 'text-green-500'}`;
+                        if (id === 'bi-ventas') {
+                            vEl.className = `text-[10px] font-bold ${vari >= 0 ? 'text-green-500' : 'text-red-500'}`;
+                        }
+                    }
+                };
+
+                updateEl('bi-ventas', m.ventas.total, 'bi-ventas-var', m.ventas.var);
+                updateEl('bi-compras', m.compras.total, 'bi-compras-var', m.compras.var);
+                updateEl('bi-marketing', m.marketing.total, 'bi-marketing-var', m.marketing.var);
+                updateEl('bi-comisiones', m.comisiones.total, 'bi-comisiones-var', m.comisiones.var);
+
+                // ROI Calculation (Empresa)
+                if (m.marketing.total > 0) {
+                    const roi = (m.ventas.total / m.marketing.total).toFixed(1);
+                    document.getElementById('roi-mkt').textContent = `${roi}x`;
+                }
+                if (m.ventas.total > 0) {
+                    const cost = ((m.comisiones.total / m.ventas.total) * 100).toFixed(1);
+                    document.getElementById('cost-sales').textContent = `${cost}%`;
+                }
+
+            } catch (e) { console.error(e); }
+        }
+
+        async function updateYearlyChart(entidad, canvasId) {
+            try {
+                const res = await fetch(`${API_BASE}${API_VERSION}/history/yearly?entidad=${entidad}&anio=2026`);
+                const data = await res.json();
+                
+                // Conversión a Acumulado Anual
+                let cumulative = 0;
+                const cumulativeValues = data.data.map(d => {
+                    cumulative += d.ingresos;
+                    return cumulative;
+                });
+
+                const ctx = document.getElementById(canvasId).getContext('2d');
+                if (State.charts[canvasId]) State.charts[canvasId].destroy();
+
+                State.charts[canvasId] = new Chart(ctx, {
+                    type: 'line', // Cambiado a línea para mejor visualización del acumulado
+                    data: {
+                        labels: data.data.map(d => d.mes),
+                        datasets: [{
+                            label: 'Ventas Acumuladas 2026',
+                            data: cumulativeValues,
+                            borderColor: '#007AFF',
+                            backgroundColor: 'rgba(0, 122, 255, 0.1)',
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 9 } } },
+                            x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+                        }
+                    }
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        function updateFormCategories(tab) {
+            const select = document.getElementById('m-categoria');
+            select.innerHTML = '';
+            const cats = tab === 'business' ? [
+                { v: 'logistica', l: '📦 Logística' },
+                { v: 'marketing', l: '📢 Marketing' },
+                { v: 'nomina', l: '💰 Nómina' },
+                { v: 'insumos', l: '⚡ Insumos' }
+            ] : [
+                { v: 'comida_super', l: '🛒 Comida/Súper' },
+                { v: 'gasolina', l: '⛽ Gasolina' },
+                { v: 'entretenimiento', l: '🏖️ Entretenimiento' }
+            ];
+            cats.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.v;
+                opt.textContent = c.l;
+                select.appendChild(opt);
+            });
+        }
+
+        async function fetchAnalytics() {
+            try {
+                const res = await fetch(`${API_BASE}${API_VERSION}/analysis/forecast?entidad=business`);
+                const data = await res.json();
+                document.getElementById('runway-days').textContent = `${data.runway_days} Días`;
+                document.getElementById('liquidez-actual').textContent = `Liquidez: ${formatMoney(data.liquidez_actual)}`;
+                
+                const indicator = document.getElementById('runway-indicator');
+                indicator.textContent = data.status;
+                indicator.className = `px-4 py-2 rounded-full text-xs font-bold ${data.status === 'HEALTHY' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`;
+            } catch (e) { console.error(e); }
+        }
+
+        async function fetchDebts(entidad) {
+            try {
+                const res = await fetch(`${API_BASE}${API_VERSION}/debts?entidad=${entidad}`);
+                const data = await res.json();
+                const container = document.getElementById(`debts-list-${entidad}`);
+                container.innerHTML = '';
+                
+                data.data.forEach(debt => {
+                    const card = document.createElement('div');
+                    card.className = 'glass p-6 border-t-4 border-[#FF3B30] relative group print:border-red-500';
+                    const progress = (debt.monto_pagado / debt.monto_total) * 100;
+                    const balance = debt.monto_total - debt.monto_pagado;
+                    
+                    // Cálculo Interés Compuesto Estimado (12 meses)
+                    const rate = debt.tasa_interes / 100;
+                    const months = 12;
+                    const estimatedWithInterest = balance * Math.pow(1 + rate/12, months);
+                    const totalInterestAdded = estimatedWithInterest - balance;
+
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start mb-4">
+                            <h4 class="font-bold text-sm uppercase">${debt.nombre_acreedor}</h4>
+                            <div class="text-right">
+                                <span class="text-[10px] font-black text-red-500 block">${debt.tasa_interes}% INT</span>
+                                ${debt.tasa_interes > 40 ? '<span class="text-[8px] text-red-600 font-bold">⚠️ TASA ALTA</span>' : ''}
+                            </div>
+                        </div>
+                        <div class="flex justify-between text-xs mb-2">
+                            <span class="text-slate-400">Deuda Restante</span>
+                            <span class="font-black">${formatMoney(balance)}</span>
+                        </div>
+                        <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                            <div class="h-full bg-red-500" style="width: ${progress}%"></div>
+                        </div>
+                        <div class="mt-4 p-2 bg-red-50 rounded-lg">
+                            <p class="text-[9px] text-red-700 font-bold uppercase">Interés Proyectado (12m)</p>
+                            <p class="text-xs font-black text-red-800">+ ${formatMoney(totalInterestAdded)}</p>
+                        </div>
+                        <div class="mt-4 flex justify-between text-[10px] font-bold text-slate-400">
+                            <span>Mín: ${formatMoney(debt.pago_minimo)}</span>
+                            <span>Corte: ${debt.fecha_corte || '--'}</span>
+                        </div>
+                        <button onclick="deleteDebt('${debt.id}')" class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-red-500 text-[8px] font-bold print:hidden">X</button>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        function toggleDebtForm(entidad) {
+            const name = prompt("Nombre del Acreedor (Ej. Banamex):");
+            if (!name) return;
+            const monto = prompt("Monto Total de la Deuda:");
+            const tasa = prompt("Tasa de Interés Anual (%):");
+            const pago = prompt("Pago Mínimo Sugerido:");
+            
+            const payload = {
+                entity_type: entidad.toUpperCase(),
+                nombre_acreedor: name,
+                monto_total: parseFloat(monto),
+                tasa_interes: parseFloat(tasa),
+                pago_minimo: parseFloat(pago)
+            };
+            
+            fetch(`${API_BASE}${API_VERSION}/debts`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).then(() => State.refreshUI());
+        }
+
+        async function deleteDebt(id) {
+            if (confirm("Eliminar deuda de la vista?")) {
+                await fetch(`${API_BASE}${API_VERSION}/debts/${id}`, { method: 'DELETE' });
+                State.refreshUI();
+            }
+        }
+
+        async function fetchSummary() {
+            try {
+                const res = await fetch(`${API_BASE}${API_VERSION}/business/summary`);
+                const data = await res.json();
+                document.getElementById('kpi-ventas').textContent = formatMoney(data.ventas);
+                document.getElementById('kpi-compras').textContent = formatMoney(data.compras);
+                document.getElementById('kpi-opex').textContent = formatMoney(data.opex);
+                document.getElementById('kpi-margen').textContent = `${data.margen_neto}%`;
+                
+                const card = document.getElementById('card-margen');
+                card.style.borderLeft = data.health_score === 'GREEN' ? '8px solid var(--ios-green)' : '8px solid var(--ios-red)';
+            } catch (e) { console.error(e); }
+        }
+
+        async function fetchPersonalSummary() {
+            try {
+                const res = await fetch(`${API_BASE}${API_VERSION}/personal/summary`);
+                const data = await res.json();
+                document.getElementById('p-kpi-ingresos').textContent = formatMoney(data.ingresos);
+                document.getElementById('p-kpi-egresos').textContent = formatMoney(data.gastos);
+                document.getElementById('p-kpi-saldo').textContent = formatMoney(data.saldo);
+                document.getElementById('p-kpi-ahorro').textContent = `${data.tasa_ahorro}%`;
+            } catch (e) { console.error(e); }
+        }
+
+        async function registerTransaction() {
+            const monto = document.getElementById('m-monto').value;
+            const detalles = document.getElementById('m-detalles').value;
+            const fecha = document.getElementById('m-fecha').value || new Date().toISOString().split('T')[0];
+            const categoria = document.getElementById('m-categoria').value;
+
+            if (!monto || !detalles) return alert("Completa monto y descripción");
+
+            const formData = new FormData();
+            formData.append('monto', monto);
+            formData.append('tipo', State.txType);
+            formData.append('entidad', State.context.toUpperCase());
+            formData.append('concepto', detalles);
+            formData.append('fecha', fecha);
+            formData.append('categoria', categoria);
+            if (State.selectedFile) formData.append('archivo', State.selectedFile);
+
+            try {
+                const res = await fetch(`${API_BASE}${API_VERSION}/transactions`, {
+                    method: 'POST',
+                    body: formData
+                });
+                if (res.ok) {
+                    resetForm();
+                    State.refreshUI();
+                } else {
+                    alert("Error al registrar");
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function scanWithAI() {
+            if (!State.selectedFile) return alert("Adjunta una foto del ticket primero");
+            
+            const formData = new FormData();
+            formData.append('archivo', State.selectedFile);
+            
+            try {
+                const btn = event.target.closest('button');
+                const originalContent = btn.innerHTML;
+                btn.innerHTML = '<span>BUSCANDO...</span>';
+                btn.disabled = true;
+
+                const res = await fetch(`${API_BASE}${API_VERSION}/ocr/process`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                
+                if (data.status === 'success' || data.status === 'mock') {
+                    const ext = data.extracted;
+                    if (ext.entidad) {
+                        State.setContext(ext.entidad.toLowerCase());
+                    }
+                    setTimeout(() => {
+                        document.getElementById('m-monto').value = ext.monto || '';
+                        document.getElementById('m-detalles').value = ext.concepto || '';
+                        if (ext.fecha) document.getElementById('m-fecha').value = ext.fecha;
+                        if (ext.categoria) document.getElementById('m-categoria').value = ext.categoria;
+                        State.setTxType('EXPENSE');
+                    }, 50);
+                }
+                
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+            } catch (e) { 
+                console.error(e); 
+                alert("Error en OCR");
+                btn.innerHTML = 'ESCANEAR IA';
+                btn.disabled = false;
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('m-monto').value = '';
+            document.getElementById('m-detalles').value = '';
+            document.getElementById('m-fecha').value = '';
+            document.getElementById('file-name').classList.add('hidden');
+            State.selectedFile = null;
+        }
+
+        async function fetchExpenses() {
+            const res = await fetch(`${API_BASE}${API_VERSION}/business/expenses`);
+            const data = await res.json();
+            renderList('expenses-list', data.registros);
+        }
+
+        async function fetchPersonalExpenses() {
+            const res = await fetch(`${API_BASE}${API_VERSION}/personal/expenses`);
+            const data = await res.json();
+            renderList('personal-list', data.registros);
+        }
+
+        function renderList(targetId, txs) {
+            const list = document.getElementById(targetId);
+            list.innerHTML = txs.length ? '' : '<p class="text-slate-400 py-8 text-center">Sin movimientos</p>';
+            txs.forEach(tx => {
+                const url = tx.file_url ? (tx.file_url.startsWith('http') ? tx.file_url : API_BASE + tx.file_url) : null;
+                list.innerHTML += `
+                <div class="group flex justify-between items-center p-4 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-all rounded-xl">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center ${url ? 'bg-blue-100' : 'bg-slate-100'}">
+                            ${url ? '<a href="'+url+'" target="_blank">📄</a>' : '📌'}
+                        </div>
+                        <div>
+                            <p class="font-bold text-sm">${tx.concepto}</p>
+                            <p class="text-[10px] text-slate-400 uppercase font-bold">${tx.fecha} • ${tx.categoria}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-black text-sm ${targetId.includes('personal') ? 'text-black' : 'text-[#FF3B30]'}">${formatMoney(tx.monto)}</p>
+                        <div class="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity mt-1">
+                            <button onclick="deleteTx('${tx.id}')" class="text-[10px] font-bold text-red-500 uppercase">Eliminar</button>
+                        </div>
+                    </div>
+                </div>`;
+            });
+        }
+
+        async function deleteTx(id) {
+            if (!confirm("Eliminar movimiento?")) return;
+            const res = await fetch(`${API_BASE}${API_VERSION}/transactions/${id}`, { method: 'DELETE' });
+            if (res.ok) State.refreshUI();
+        }
+
+        function formatMoney(n) {
+            return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(n);
+        }
+
+        function toggleAI() { document.getElementById('ai-panel').classList.toggle('open'); }
+
+        window.onload = () => { State.refreshUI(); };
+    </script>
+
+</body>
+</html>
