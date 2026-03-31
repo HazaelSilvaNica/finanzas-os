@@ -522,7 +522,25 @@
         <div class="flex justify-between items-center mb-10">
             <h3 class="text-2xl font-extrabold">Asistente Gemini</h3>
             <button onclick="toggleAI()" class="text-slate-400 hover:text-black">
-              <script>
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        
+        <div id="ai-messages" class="flex-1 overflow-y-auto space-y-6 pr-2">
+            <div class="bg-white/50 p-5 rounded-2xl border border-white/30 text-sm leading-relaxed">
+                👋 Hola Hazael. Estoy analizando tus finanzas de Marzo 2026. <strong>¿Quieres una recomendación sobre cómo optimizar el OpEx o el margen neto?</strong>
+            </div>
+        </div>
+
+        <div class="mt-8 relative">
+            <button onclick="getAIAdvice()" class="w-full btn-ios btn-primary-ios py-4 rounded-2xl font-bold flex items-center justify-center space-x-3">
+                <span id="ai-btn-text">Generar Reporte IA</span>
+                <div id="ai-loader" class="hidden w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+            </button>
+        </div>
+    </div>
+
+    <script>
         // 1. CONFIGURACIÓN Y ESTADO GLOBAL
         const API_VERSION = "/api/v1";
         const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? "http://localhost:8000" : "";
