@@ -1106,18 +1106,23 @@
                 });
                 const data = await res.json();
                 
-                if (data.status === 'success' || data.status === 'mock') {
-                    const ext = data.extracted;
+                if (data && data.monto !== undefined) {
+                    const ext = data;
+                    // Switch context if Gemini detected it
                     if (ext.entidad) {
                         State.setContext(ext.entidad.toLowerCase());
                     }
+                    
+                    // Fill fields with a small delay for UI transition
                     setTimeout(() => {
                         document.getElementById('m-monto').value = ext.monto || '';
                         document.getElementById('m-detalles').value = ext.concepto || '';
                         if (ext.fecha) document.getElementById('m-fecha').value = ext.fecha;
                         if (ext.categoria) document.getElementById('m-categoria').value = ext.categoria;
                         State.setTxType('EXPENSE');
-                    }, 50);
+                    }, 100);
+
+                    showToast("IA: Datos extraídos correctamente");
                 }
                 
                 btn.innerHTML = originalContent;

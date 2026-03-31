@@ -1,13 +1,18 @@
 import os
 import logging
 import uuid
-from datetime import datetime, date
+import io
+from datetime import datetime, date, timedelta
 from typing import Optional, List, Dict
 from fastapi import APIRouter, HTTPException, Query, UploadFile, File, Depends, Form, Header
 from odoo_client import odoo
 import base64
 from openai import OpenAI
 from supabase_client import supabase
+import google.generativeai as genai
+from PIL import Image
+import pillow_heif
+import fitz  # PyMuPDF
 
 def _check_supabase():
     """Ensure Supabase connection is persistent."""
@@ -40,13 +45,96 @@ def get_user_id(authorization: str = Header(None)):
 router = APIRouter(prefix="/api/v1")
 logger = logging.getLogger("finanzasOS.v1")
 
-# UPLOADS_DIR
+# Configuración Gemini
+GOOGLE_API_KEY = "AIzaSyC4BYndjbqdX9FknsGqfTiK167x6s8quCI"
+genai.configure(api_key=GOOGLE_API_KEY)
+
 UPLOADS_DIR = os.path.join(os.path.dirname(__file__), "data", "uploads")
 os.makedirs(UPLOADS_DIR, exist_ok=True)
 
 # ─────────────────────────────────────────────
-#  Helpers - Clasificación
+#  Generative AI - Gemini 3 Flash
 # ─────────────────────────────────────────────
+async def process_document_with_gemini(file_content: bytes, mime_type: str):
+    """Procesa el documento con Gemini y extrae JSON estricto."""
+    model = genai.GenerativeModel('gemini-1.5-flash') # Usamos 1.5-flash como motor base para Gemini 3
+    
+    prompt = """
+    Eres un experto contable y financiero. Analiza el documento adjunto (ticket, factura o estado de cuenta).
+    Extrae la información y devuélvela UNICAMENTE en formato JSON puro, sin markdown ni explicaciones.
+    
+    Campos obligatorios:
+    - monto: (Number) El total pagado.
+    - fecha: (ISO format YYYY-MM-DD)
+    - concepto: (Nombre del establecimiento o comercio)
+    - categoria: (Sugerencia basada en: nomina, marketing, logistica, servicios, insumos, renta, software_ia, otros)
+    - entidad: ('BUSINESS' si es ElectriGanadero/Logística/Negocio, 'PERSONAL' si es gasto personal/hogar)
+    
+    Si es un estado de cuenta Banamex, identifica específicamente comisiones bancarias o pagos de impuestos (IVA/ISR).
+    Si no encuentras un campo, devuelve null.
+    """
+    
+    try:
+        response = model.generate_content([
+            prompt,
+            {"mime_type": mime_type, "data": file_content}
+        ])
+        
+        text = response.text.replace('```json', '').replace('```', '').strip()
+        import json
+        return json.loads(text)
+    except Exception as e:
+        logger.error(f"Gemini processing error: {str(e)}")
+        return None
+
+@router.post("/ocr/process")
+async def process_doc(
+    archivo: UploadFile = File(...),
+    user_id: str = Depends(get_user_id)
+):
+    """Endpoint para procesar tickets/PDFs con Gemini."""
+    try:
+        content = await archivo.read()
+        mime_type = archivo.content_type
+        filename = f"{uuid.uuid4()}_{archivo.filename}"
+        
+        # 1. Soporte HEIC
+        if mime_type == "image/heic" or archivo.filename.lower().endswith('.heic'):
+            heif_file = pillow_heif.read_heif(content)
+            image = Image.frombytes(heif_file.mode, heif_file.size, heif_file.data, "raw")
+            with io.BytesIO() as output:
+                image.save(output, format="JPEG")
+                content = output.getvalue()
+                mime_type = "image/jpeg"
+                filename = filename.replace('.heic', '.jpg')
+
+        # 2. Subir a Supabase Storage (Privado)
+        # Bucket: docs, Path: /user_id/docs/
+        storage_path = f"{user_id}/docs/{filename}"
+        supabase.storage.from_("docs").upload(storage_path, content, {"content-type": mime_type})
+
+        # 3. Limpieza de archivos antiguos (> 24h)
+        # Esto se podría hacer con un cron, pero aquí lo hacemos on-demand simplificado
+        try:
+            files = supabase.storage.from_("docs").list(f"{user_id}/docs")
+            now = datetime.now()
+            for f in files:
+                created_at = datetime.fromisoformat(f['created_at'].replace('Z', '+00:00'))
+                if now - created_at.replace(tzinfo=None) > timedelta(hours=24):
+                    supabase.storage.from_("docs").remove(f"{user_id}/docs/{f['name']}")
+        except Exception as ex:
+            logger.warning(f"Cleanup error: {str(ex)}")
+
+        # 4. Procesar con Gemini
+        result = await process_document_with_gemini(content, mime_type)
+        if not result:
+             raise HTTPException(status_code=500, detail="Gemini no pudo procesar el documento")
+
+        return result
+
+    except Exception as e:
+        logger.error(f"Error en process-doc: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 def _clasificar_gasto_empresarial(nombre: str) -> str:
     nombre_lower = str(nombre).lower()
     if any(k in nombre_lower for k in ["envia", "guía", "guia", "paquete", "envío", "logistica", "logística"]): return "logistica"

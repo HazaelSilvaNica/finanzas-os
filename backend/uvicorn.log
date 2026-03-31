@@ -2325,3 +2325,102 @@ INFO:     Finished server process [24930]
 INFO:     Started server process [29059]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
+INFO:     127.0.0.1:54000 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54000 - "GET /manifest.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54003 - "GET /icon-192.png HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'venv/lib/python3.9/site-packages/pymupdf/__init__.py', 'venv/lib/python3.9/site-packages/pymupdf/pymupdf.py', 'venv/lib/python3.9/site-packages/fitz/utils.py', 'venv/lib/python3.9/site-packages/pymupdf/_build.py', 'venv/lib/python3.9/site-packages/pymupdf/table.py', 'venv/lib/python3.9/site-packages/pymupdf/extra.py', 'venv/lib/python3.9/site-packages/pymupdf/_apply_pages.py', 'venv/lib/python3.9/site-packages/pymupdf/__main__.py', 'venv/lib/python3.9/site-packages/pymupdf/mupdf.py', 'venv/lib/python3.9/site-packages/fitz/table.py', 'venv/lib/python3.9/site-packages/pymupdf/utils.py', 'venv/lib/python3.9/site-packages/pymupdf/_wxcolors.py', 'venv/lib/python3.9/site-packages/fitz/__init__.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [29059]
+WARNING:  WatchFiles detected changes in 'venv/lib/python3.9/site-packages/pillow_heif/heif.py', 'venv/lib/python3.9/site-packages/pillow_heif/__init__.py', 'venv/lib/python3.9/site-packages/pillow_heif/as_plugin.py', 'venv/lib/python3.9/site-packages/pillow_heif/misc.py', 'venv/lib/python3.9/site-packages/pillow_heif/_version.py', 'venv/lib/python3.9/site-packages/pillow_heif/options.py', 'venv/lib/python3.9/site-packages/pillow_heif/HeifImagePlugin.py', 'venv/lib/python3.9/site-packages/pillow_heif/constants.py', 'venv/lib/python3.9/site-packages/pillow_heif/_lib_info.py', 'venv/lib/python3.9/site-packages/pillow_heif/_deffered_error.py'. Reloading...
+/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+2026-03-31 15:05:47,857 [INFO] finanzasOS: Initializing database...
+INFO:     Started server process [30507]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+2026-03-31 15:05:48,482 [INFO] finanzasOS: Initializing database...
+INFO:     Started server process [30597]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'api_v1.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [30597]
+/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/google/api_core/_python_version_support.py:234: FutureWarning: You are using a non-supported Python version (3.9.6). Google will not post any further updates to google.api_core supporting this Python version. Please upgrade to the latest Python version, or at least Python 3.10, and then update google.api_core.
+  warnings.warn(message, FutureWarning)
+/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/google/auth/__init__.py:54: FutureWarning: You are using a Python version 3.9 past its end of life. Google will update google-auth with critical bug fixes on a best-effort basis, but not with any other fixes or features. Please upgrade your Python version, and then update google-auth.
+  warnings.warn(eol_message.format("3.9"), FutureWarning)
+/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/google/oauth2/__init__.py:40: FutureWarning: You are using a Python version 3.9 past its end of life. Google will update google-auth with critical bug fixes on a best-effort basis, but not with any other fixes or features. Please upgrade your Python version, and then update google-auth.
+  warnings.warn(eol_message.format("3.9"), FutureWarning)
+/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/api_v1.py:12: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+2026-03-31 15:06:10,235 [INFO] finanzasOS: Initializing database...
+INFO:     Started server process [30618]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'api_v1.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [30618]
+/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/google/api_core/_python_version_support.py:234: FutureWarning: You are using a non-supported Python version (3.9.6). Google will not post any further updates to google.api_core supporting this Python version. Please upgrade to the latest Python version, or at least Python 3.10, and then update google.api_core.
+  warnings.warn(message, FutureWarning)
+/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/google/auth/__init__.py:54: FutureWarning: You are using a Python version 3.9 past its end of life. Google will update google-auth with critical bug fixes on a best-effort basis, but not with any other fixes or features. Please upgrade your Python version, and then update google-auth.
+  warnings.warn(eol_message.format("3.9"), FutureWarning)
+/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/google/oauth2/__init__.py:40: FutureWarning: You are using a Python version 3.9 past its end of life. Google will update google-auth with critical bug fixes on a best-effort basis, but not with any other fixes or features. Please upgrade your Python version, and then update google-auth.
+  warnings.warn(eol_message.format("3.9"), FutureWarning)
+/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/api_v1.py:12: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+2026-03-31 15:06:27,104 [INFO] finanzasOS: Initializing database...
+INFO:     Started server process [30646]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'api_v1.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [30646]
+/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/google/api_core/_python_version_support.py:234: FutureWarning: You are using a non-supported Python version (3.9.6). Google will not post any further updates to google.api_core supporting this Python version. Please upgrade to the latest Python version, or at least Python 3.10, and then update google.api_core.
+  warnings.warn(message, FutureWarning)
+/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/google/auth/__init__.py:54: FutureWarning: You are using a Python version 3.9 past its end of life. Google will update google-auth with critical bug fixes on a best-effort basis, but not with any other fixes or features. Please upgrade your Python version, and then update google-auth.
+  warnings.warn(eol_message.format("3.9"), FutureWarning)
+/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/venv/lib/python3.9/site-packages/google/oauth2/__init__.py:40: FutureWarning: You are using a Python version 3.9 past its end of life. Google will update google-auth with critical bug fixes on a best-effort basis, but not with any other fixes or features. Please upgrade your Python version, and then update google-auth.
+  warnings.warn(eol_message.format("3.9"), FutureWarning)
+/Users/hazaelsilvarodriguez/Finanzas Personales y Electriganadero/backend/api_v1.py:12: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+2026-03-31 15:06:34,158 [INFO] finanzasOS: Initializing database...
+INFO:     Started server process [30657]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
