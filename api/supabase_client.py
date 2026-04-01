@@ -9,11 +9,11 @@ key: str = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
 
 # Initialize client with safety check
 if not url or not key:
-    print("❌ CRITICAL: Missing Supabase Credentials (SUPABASE_URL / SERVICEROLE_KEY)")
-    # En Vercel, esto evitará que la app colapse en el import, permitiendo ver el error en el log
+    print(f"❌ CRITICAL: Missing Supabase Credentials. URL: {url}, KEY length: {len(key) if key else 0}")
     supabase = None
 else:
     try:
+        print(f"Connecting to Supabase at: {url}")
         from supabase import create_client, Client
         supabase: Client = create_client(url, key)
     except Exception as e:

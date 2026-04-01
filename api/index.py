@@ -104,6 +104,26 @@ async def ai_advice_proxy(payload: Dict, user_id: str = Depends(get_user_id)):
     from api_v1 import get_ai_advice
     return await get_ai_advice(payload, user_id)
 
+@app.get("/api/v1/business/expenses")
+def business_expenses_proxy(anio: Optional[int] = Query(None), mes: Optional[int] = Query(None), user_id: str = Depends(get_user_id)):
+    from api_v1 import get_business_expenses
+    return get_business_expenses(anio, mes, None, user_id)
+
+@app.get("/api/v1/debts")
+def debts_proxy(entidad: str = "BUSINESS", user_id: str = Depends(get_user_id)):
+    from api_v1 import get_debts
+    return get_debts(entidad, user_id)
+
+@app.get("/api/v1/analysis/forecast")
+def forecast_proxy(entidad: str = "BUSINESS", user_id: str = Depends(get_user_id)):
+    from api_v1 import get_cashflow_forecast
+    return get_cashflow_forecast(entidad, user_id)
+
+@app.get("/api/v1/bi/summary")
+def bi_summary_proxy(anio: Optional[int] = Query(None), mes: Optional[int] = Query(None), user_id: str = Depends(get_user_id)):
+    from api_v1 import get_bi_summary
+    return get_bi_summary(anio, mes, user_id)
+
 # ─────────────────────────────────────────────
 #  Imports conditionally if they don't crash
 # ─────────────────────────────────────────────
