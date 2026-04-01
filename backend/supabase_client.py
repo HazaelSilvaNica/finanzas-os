@@ -7,8 +7,18 @@ load_dotenv()
 url: str = os.environ.get("SUPABASE_URL")
 key: str = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
 
-# Initialize client
-supabase: Client = create_client(url, key)
+# Initialize client with safety check
+if not url or not key:
+    print("❌ CRITICAL: Missing Supabase Credentials (SUPABASE_URL / SERVICEROLE_KEY)")
+    # En Vercel, esto evitará que la app colapse en el import, permitiendo ver el error en el log
+    supabase = None
+else:
+    try:
+        from supabase import create_client, Client
+        supabase: Client = create_client(url, key)
+    except Exception as e:
+        print(f"❌ Error al inicializar cliente Supabase: {e}")
+        supabase = None
 
 def get_supabase():
     return supabase

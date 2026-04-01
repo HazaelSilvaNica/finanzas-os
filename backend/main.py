@@ -18,9 +18,12 @@ from api_v1 import router as v1_router
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger("finanzasOS")
 
-# Initialize DB
-logger.info("Initializing database...")
-init_db()
+# Initialize DB (only if not on Vercel to avoid Read-Only Filesystem error)
+if not os.getenv("VERCEL"):
+    logger.info("Initializing local database...")
+    init_db()
+else:
+    logger.info("Vercel Environment detected — skipping local SQLite initialization.")
 
 app = FastAPI(
     title="FinanzasOS 2.0",
