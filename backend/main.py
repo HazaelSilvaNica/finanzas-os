@@ -47,7 +47,7 @@ app.include_router(v1_router)
 # ─────────────────────────────────────────────
 #  Static Files
 # ─────────────────────────────────────────────
-UPLOADS_DIR = os.path.join(os.path.dirname(__file__), "data", "uploads")
+UPLOADS_DIR = "/tmp/uploads"
 os.makedirs(UPLOADS_DIR, exist_ok=True)
 app.mount("/api/v1/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")
 

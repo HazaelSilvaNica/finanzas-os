@@ -50,7 +50,7 @@ logger = logging.getLogger("finanzasOS.v1")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "AIzaSyC4BYndjbqdX9FknsGqfTiK167x6s8quCI")
 genai.configure(api_key=GOOGLE_API_KEY)
 
-UPLOADS_DIR = os.path.join(os.path.dirname(__file__), "data", "uploads")
+UPLOADS_DIR = "/tmp/uploads"
 os.makedirs(UPLOADS_DIR, exist_ok=True)
 
 # ─────────────────────────────────────────────
