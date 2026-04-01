@@ -57,84 +57,87 @@ os.makedirs(UPLOADS_DIR, exist_ok=True)
 # ─────────────────────────────────────────────
 async def process_document_with_gemini(file_content: bytes, mime_type: str):
     """Procesa el documento con Gemini y extrae JSON estricto."""
-    model = genai.GenerativeModel('gemini-1.5-flash') # Usamos 1.5-flash como motor base para Gemini 3
+    model = genai.GenerativeModel('gemini-1.5-flash')
     
+    # Prompt optimizado para extracción de alta precisión
     prompt = """
-    Eres un experto contable y financiero. Analiza el documento adjunto (ticket, factura o estado de cuenta).
-    Extrae la información y devuélvela UNICAMENTE en formato JSON puro, sin markdown ni explicaciones.
+    Analiza el documento financiero adjunto. Extrae los datos clave y responde EXCLUSIVAMENTE con un objeto JSON.
+    Campos requeridos:
+    - monto: (Number) Total final con impuestos.
+    - fecha: (ISO YYYY-MM-DD)
+    - concepto: (Nombre del establecimiento)
+    - categoria: (nomina, marketing, logistica, servicios, insumos, renta, software_ia, comisiones, impuestos, otros)
+    - entidad: ('BUSINESS' o 'PERSONAL')
     
-    Campos obligatorios:
-    - monto: (Number) El total pagado.
-    - fecha: (ISO format YYYY-MM-DD)
-    - concepto: (Nombre del establecimiento o comercio)
-    - categoria: (Sugerencia basada en: nomina, marketing, logistica, servicios, insumos, renta, software_ia, comisiones, impuestos, otros)
-    - entidad: ('BUSINESS' si es ElectriGanadero/Logística/Negocio, 'PERSONAL' si es gasto personal/hogar)
-    
-    Si es un estado de cuenta Banamex o similar, identifica específicamente comisiones bancarias o pagos de impuestos (IVA/ISR).
-    Si no encuentras un campo, devuelve null.
+    Reglas:
+    1. Si es de una empresa de logística o insumos agrícolas, usa 'BUSINESS'.
+    2. Si es ticket de comida/super/hogar, usa 'PERSONAL'.
+    3. NO incluyas markdown ni texto extra. Solo el JSON.
     """
     
     try:
+        # Configuración de seguridad para evitar bloqueos innecesarios
         response = model.generate_content([
             prompt,
             {"mime_type": mime_type, "data": file_content}
-        ])
+        ], generation_config={"response_mime_type": "application/json"})
         
-        text = response.text.replace('```json', '').replace('```', '').strip()
+        # Limpieza por si Gemini añade ```json
+        clean_json = response.text.strip().replace('```json', '').replace('```', '')
         import json
-        return json.loads(text)
+        return json.loads(clean_json)
     except Exception as e:
         logger.error(f"Gemini processing error: {str(e)}")
-        return None
+        raise e
 
 @router.post("/ocr/process")
-async def process_doc(
-    archivo: UploadFile = File(...),
-    user_id: str = Depends(get_user_id)
-):
-    """Endpoint para procesar tickets/PDFs con Gemini."""
+async def process_doc(archivo: UploadFile = File(...), user_id: str = Depends(get_user_id)):
+    """Endpoint robusto para procesar documentos con Gemini."""
     try:
-        content = await archivo.read()
-        mime_type = archivo.content_type
-        filename = f"{uuid.uuid4()}_{archivo.filename}"
-        
-        # 1. Soporte HEIC
-        if mime_type == "image/heic" or archivo.filename.lower().endswith('.heic'):
-            heif_file = pillow_heif.read_heif(content)
-            image = Image.frombytes(heif_file.mode, heif_file.size, heif_file.data, "raw")
-            with io.BytesIO() as output:
-                image.save(output, format="JPEG")
-                content = output.getvalue()
-                mime_type = "image/jpeg"
-                filename = filename.replace('.heic', '.jpg')
-
-        # 2. Subir a Supabase Storage (Privado)
-        # Bucket: docs, Path: /user_id/docs/
-        storage_path = f"{user_id}/docs/{filename}"
-        supabase.storage.from_("docs").upload(storage_path, content, {"content-type": mime_type})
-
-        # 3. Limpieza de archivos antiguos (> 24h)
-        # Esto se podría hacer con un cron, pero aquí lo hacemos on-demand simplificado
+        # 1. Leer y Validar
         try:
-            files = supabase.storage.from_("docs").list(f"{user_id}/docs")
-            now = datetime.now()
-            for f in files:
-                created_at = datetime.fromisoformat(f['created_at'].replace('Z', '+00:00'))
-                if now - created_at.replace(tzinfo=None) > timedelta(hours=24):
-                    supabase.storage.from_("docs").remove(f"{user_id}/docs/{f['name']}")
-        except Exception as ex:
-            logger.warning(f"Cleanup error: {str(ex)}")
+            content = await archivo.read()
+            mime_type = archivo.content_type
+            filename = f"{uuid.uuid4()}_{archivo.filename}"
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Error al leer archivo: {str(e)}")
 
-        # 4. Procesar con Gemini
-        result = await process_document_with_gemini(content, mime_type)
-        if not result:
-             raise HTTPException(status_code=500, detail="Gemini no pudo procesar el documento")
+        # 2. Conversión HEIC si aplica
+        if mime_type == "image/heic" or filename.lower().endswith('.heic'):
+            try:
+                heif_file = pillow_heif.read_heif(content)
+                image = Image.frombytes(heif_file.mode, heif_file.size, heif_file.data, "raw")
+                with io.BytesIO() as output:
+                    image.save(output, format="JPEG")
+                    content = output.getvalue()
+                    mime_type = "image/jpeg"
+                    filename = filename.replace('.heic', '.jpg')
+            except Exception as e:
+                raise HTTPException(status_code=422, detail=f"Error al convertir HEIC: {str(e)}")
 
-        return result
+        # 3. Almacenamiento en Supabase
+        storage_path = f"{user_id}/docs/{filename}"
+        try:
+            supabase.storage.from_("docs").upload(storage_path, content, {"content-type": mime_type})
+        except Exception as e:
+            logger.error(f"Storage error: {str(e)}")
+            # Continuamos aunque falle el guardado, la prioridad es el OCR
 
+        # 4. Análisis con Gemini
+        try:
+            result = await process_document_with_gemini(content, mime_type)
+            if not result:
+                raise Exception("Respuesta de IA vacía")
+            return result
+        except Exception as e:
+            logger.error(f"Gemini Error: {str(e)}")
+            raise HTTPException(status_code=502, detail=f"La IA no pudo leer el documento: {str(e)}")
+
+    except HTTPException as he:
+        raise he
     except Exception as e:
-        logger.error(f"Error en process-doc: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.exception("OCR Critical Failure")
+        raise HTTPException(status_code=500, detail=f"Fallo crítico en OCR: {str(e)}")
 def _clasificar_gasto_empresarial(nombre: str) -> str:
     nombre_lower = str(nombre).lower()
     if any(k in nombre_lower for k in ["envia", "guía", "guia", "paquete", "envío", "logistica", "logística"]): return "logistica"
@@ -652,14 +655,21 @@ async def get_ai_advice(payload: Dict, user_id: str = Depends(get_user_id)):
     "{user_query}"
     """
     
+    if not GOOGLE_API_KEY:
+        raise HTTPException(status_code=500, detail="Gemini API Key no configurada en el servidor.")
+
     try:
         # Generamos contenido con el contexto y la duda específica
         response = model.generate_content(system_instruction)
         
+        if not response or not response.text:
+            raise Exception("Gemini devolvió una respuesta vacía")
+
         # Limpieza básica de markdown si Gemini ignora la instrucción de HTML
-        advice_html = response.text.replace("```html", "").replace("```", "").strip()
+        advice_html = response.text.replace("```html", "").replace("```", "").replace("```", "").strip()
         
         return {"advice": advice_html}
     except Exception as e:
-        logger.error(f"Ian AI Error: {str(e)}")
-        raise HTTPException(status_code=500, detail="Ian está procesando datos complejos en este momento. Intenta de nuevo.")
+        logger.error(f"Ian AI Critical Error: {str(e)}")
+        # Devuelve un mensaje amigable pero indica que hay un problema técnico
+        raise HTTPException(status_code=503, detail="Ian está calibrando sus modelos financieros. Por favor, reintenta en 30 segundos.")

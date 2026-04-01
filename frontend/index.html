@@ -169,28 +169,51 @@
             animation: pulse-glow 3s infinite;
         }
 
-        .btn-fab-ios {
+        .btn-fab-left {
             position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            width: 64px;
-            height: 64px;
-            border-radius: 22px;
-            background: #000;
-            color: #fff;
+            bottom: 24px;
+            left: 24px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #007AFF;
+            color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            z-index: 100;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 25px rgba(0, 122, 255, 0.4);
+            z-index: 9999;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .btn-fab-ios:active { transform: scale(0.9); }
+        .btn-fab-right {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+            z-index: 9999;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .btn-fab-left:active, .btn-fab-right:active { transform: scale(0.9) rotate(5deg); }
 
-        @keyframes pulse-glow {
-            0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+        /* Modern Toggle Contrast */
+        .type-toggle-btn { background: #f1f5f9; color: #64748b; font-weight: 700; transition: all 0.3s; }
+        .type-toggle-btn.active-expense { 
+            background: #FF3B30 !important; 
+            color: white !important; 
+            box-shadow: 0 4px 12px rgba(255, 59, 48, 0.3); 
+        }
+        .type-toggle-btn.active-income { 
+            background: #34C759 !important; 
+            color: white !important; 
+            box-shadow: 0 4px 12px rgba(52, 199, 89, 0.3); 
         }
 
         .glass-select {
@@ -283,11 +306,6 @@
                 </div>
             </div>
             <div class="flex items-center space-x-2 sm:space-x-4">
-                <button onclick="openTransactionModal()" class="hidden sm:flex btn-ios btn-liquid-glass px-6 py-2.5 rounded-full text-xs font-bold shadow-sm">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"/></svg>
-                    <span>AÑADIR REGISTRO</span>
-                </button>
-                
                 <select id="date-range-preset" onchange="handleDateFilter()" class="glass-select max-w-[120px] sm:max-w-none">
                     <option value="current_month">Marzo 2026</option>
                     <option value="last_month">Febrero 2026</option>
@@ -300,19 +318,17 @@
                 <button onclick="window.print()" class="hidden sm:block glass px-3 py-2 rounded-xl text-slate-500 hover:text-black transition-all">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                 </button>
-
-                <button onclick="toggleAI()" class="btn-ios btn-ai-ian px-4 sm:px-5 py-2.5 min-h-[44px] rounded-full text-[10px] sm:text-xs font-bold flex items-center space-x-2">
-                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                    <span class="hidden xs:inline">Preguntar a Ian</span>
-                    <span class="xs:hidden">Ian</span>
-                </button>
             </div>
         </div>
     </nav>
     
-    <!-- Mobile FAB -->
-    <button onclick="openTransactionModal()" class="sm:hidden btn-fab-ios">
+    <!-- ══════════════ FAB DOCK (iOS Style) ══════════════ -->
+    <button onclick="openTransactionModal()" class="btn-fab-left" title="Nuevo Registro">
         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"/></svg>
+    </button>
+
+    <button onclick="toggleAI()" class="btn-fab-right" title="Asistente Ian">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
     </button>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
@@ -540,12 +556,12 @@
                 </button>
 
                 <div id="shared-form-container" class="transition-all duration-300">
-                    <h4 class="text-2xl font-black mb-8 text-center italic tracking-tight">HSR <span class="text-[#007AFF]">Control</span> — Nuevo</h4>
+                    <h4 id="shared-modal-title" class="text-2xl font-black mb-8 text-center italic tracking-tight uppercase">HSR <span class="text-[#007AFF]">Control</span></h4>
                     
                     <!-- Toggle Type -->
-                    <div id="type-toggle-container" class="flex bg-slate-100 p-1.5 rounded-2xl mb-8 border border-slate-200">
-                        <button id="type-expense" onclick="setTxType('EXPENSE')" class="flex-1 py-3 text-[11px] font-black rounded-xl transition-all shadow-sm bg-white text-[#FF3B30]">EGRESO (-)</button>
-                        <button id="type-income" onclick="setTxType('INCOME')" class="flex-1 py-3 text-[11px] font-black rounded-xl transition-all text-slate-400">INGRESO (+)</button>
+                    <div id="type-toggle-container" class="flex bg-slate-200/50 p-1 rounded-2xl mb-8 border border-slate-200">
+                        <button id="type-expense" onclick="setTxType('EXPENSE')" class="type-toggle-btn flex-1 py-3 text-[11px] font-black rounded-xl transition-all active-expense">EGRESO (-)</button>
+                        <button id="type-income" onclick="setTxType('INCOME')" class="type-toggle-btn flex-1 py-3 text-[11px] font-black rounded-xl transition-all">INGRESO (+)</button>
                     </div>
 
                     <div class="space-y-6">
@@ -581,7 +597,7 @@
                                 <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Extraer datos con IA</p>
                                 <span id="file-name" class="text-xs text-[#007AFF] hidden font-medium"></span>
                             </div>
-                            <input type="file" id="m-archivo" class="hidden" accept="image/*,application/pdf" capture="camera" onchange="handleFileSelect(this)">
+                            <input type="file" id="m-archivo" class="hidden" accept="image/*,application/pdf" onchange="handleFileSelect(this)">
                         </div>
 
                         <div class="grid grid-cols-2 gap-4 mt-8">
@@ -765,20 +781,15 @@
 
             setTxType(type) {
                 this.txType = type;
-                const isExpense = type === 'EXPENSE';
-                
                 const btnExp = document.getElementById('type-expense');
                 const btnInc = document.getElementById('type-income');
-                const container = document.getElementById('type-toggle-container');
 
-                if (isExpense) {
-                    btnExp.className = "flex-1 py-3 text-[11px] font-black rounded-xl transition-all shadow-sm bg-white text-[#FF3B30]";
-                    btnInc.className = "flex-1 py-3 text-[11px] font-black rounded-xl transition-all text-slate-400";
-                    if (container) container.style.background = "rgba(255, 59, 48, 0.05)";
+                if (type === 'EXPENSE') {
+                    btnExp.classList.add('active-expense');
+                    btnInc.classList.remove('active-income');
                 } else {
-                    btnExp.className = "flex-1 py-3 text-[11px] font-black rounded-xl transition-all text-slate-400";
-                    btnInc.className = "flex-1 py-3 text-[11px] font-black rounded-xl transition-all shadow-sm bg-white text-[#34C759]";
-                    if (container) container.style.background = "rgba(52, 199, 89, 0.05)";
+                    btnInc.classList.add('active-income');
+                    btnExp.classList.remove('active-expense');
                 }
             }
 
@@ -1329,9 +1340,17 @@
         function openTransactionModal() {
             resetForm();
             document.getElementById('m-fecha').value = new Date().toISOString().split('T')[0];
-            document.getElementById('transaction-modal').classList.add('open');
+            const modal = document.getElementById('transaction-modal');
+            const titleEl = document.getElementById('shared-modal-title');
+            
+            if (State.context === 'business') {
+                titleEl.innerHTML = `Nuevo Registro — <span class="text-blue-600">EMPRESA</span>`;
+            } else {
+                titleEl.innerHTML = `Nuevo Registro — <span class="text-green-600">PERSONAL</span>`;
+            }
+            
+            modal.classList.add('open');
             updateFormCategories(State.context);
-            // Default appearance
             State.setTxType('EXPENSE');
         }
 
