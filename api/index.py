@@ -1,0 +1,79 @@
+import os
+import logging
+from datetime import datetime, date
+from typing import Optional
+from fastapi import FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from dotenv import load_dotenv
+
+load_dotenv()
+
+from database import init_db
+from api_v1 import router as v1_router
+
+# ─────────────────────────────────────────────
+#  Logging & App Init
+# ─────────────────────────────────────────────
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+logger = logging.getLogger("finanzasOS")
+
+# ─────────────────────────────────────────────
+#  Startup & Logic
+# ─────────────────────────────────────────────
+@app.on_event("startup")
+async def startup_event():
+    # 1. Initialize DB (only if not on Vercel)
+    if not os.getenv("VERCEL"):
+        logger.info("Initializing local database (Dev)...")
+        from database import init_db
+        init_db()
+    else:
+        logger.info("Vercel production — using Supabase infrastructure.")
+
+    # 2. Ensure /tmp/uploads exists for Vercel
+    if not os.path.exists(UPLOADS_DIR):
+        os.makedirs(UPLOADS_DIR, exist_ok=True)
+
+app = FastAPI(
+    title="FinanzasOS 3.6",
+    description="Sistema contable avanzado con IA y soporte multimedia.",
+    version="3.6.0"
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "https://hsragent.com",
+        "https://www.hsragent.com",
+        "http://localhost:8000",
+        "http://127.0.0.1:8000"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Routes
+app.include_router(v1_router)
+
+# ─────────────────────────────────────────────
+#  Static Files Configuration
+# ─────────────────────────────────────────────
+UPLOADS_DIR = "/tmp/uploads"
+
+# Solo montamos si el directorio existe (se crea en el startup)
+try:
+    app.mount("/api/v1/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")
+except:
+    pass
+
+# El frontend se sirve vía vercel.json en producción, pero en local:
+if not os.getenv("VERCEL"):
+    frontend_path = os.path.join(os.path.dirname(__file__), "..", "frontend")
+    if os.path.exists(frontend_path):
+        app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("index:app", host="0.0.0.0", port=8000, reload=True)
