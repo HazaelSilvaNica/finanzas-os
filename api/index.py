@@ -87,7 +87,7 @@ def health_check():
     debug_keys = [k for k in os.environ.keys() if k.startswith(("SUPABASE_", "GOOGLE_", "NEXT_PUBLIC_SUPABASE_"))]
     return {
         "status": "ok", 
-        "version": "3.7.15", 
+        "version": "3.7.18", 
         "supabase": "CONNECTED" if sb else "OFFLINE",
         "supabase_error": get_last_error(),
         "debug_keys": debug_keys,
@@ -107,33 +107,46 @@ def get_business_summary(anio: Optional[int] = Query(None), mes: Optional[int] =
     ultimo_dia = f"{anio_q}-{mes_q:02d}-{calendar.monthrange(anio_q, mes_q)[1]}"
     
     try:
-        # Incomes (Odoo)
+    # Incomes (Odoo)
+    ventas_total = 0
+    try:
         ventas_raw = odoo.search_read(model="sale.order", domain=[["state", "in", ["sale", "done"]], ["date_order", ">=", f"{primer_dia} 00:00:00"], ["date_order", "<=", f"{ultimo_dia} 23:59:59"]], fields=["amount_total"])
         ventas_total = sum(v.get("amount_total", 0) for v in ventas_raw)
-        
-        # Expenses (Odoo)
+    except Exception as e:
+        logger.warning(f"Odoo Ventas Error: {e}")
+
+    # Expenses (Odoo)
+    compras_total = 0
+    try:
         compras_raw = odoo.search_read(model="purchase.order", domain=[["state", "in", ["purchase", "done"]], ["date_approve", ">=", f"{primer_dia} 00:00:00"], ["date_approve", "<=", f"{ultimo_dia} 23:59:59"]], fields=["amount_total"])
         compras_total = sum(c.get("amount_total", 0) for c in compras_raw)
-        
-        # OPEX (Supabase)
-        res_opex = supabase.table('transactions').select("monto").filter('entidad', 'eq', 'BUSINESS').filter('tipo', 'eq', 'EXPENSE').filter('fecha', 'gte', primer_dia).filter('fecha', 'lte', ultimo_dia).filter('user_id', 'eq', user_id).execute()
-        opex_total = sum(item['monto'] for item in res_opex.data)
-        
-        income_total = ventas_total
-        margin = ((income_total - compras_total - float(opex_total)) / income_total * 100) if income_total > 0 else 0
-        
-        return {
-            "periodo": f"{anio_q}-{mes_q:02d}",
-            "ventas": round(income_total, 2),
-            "compras": round(compras_total, 2),
-            "opex": round(float(opex_total), 2),
-            "margen_neto": round(margin, 2),
-            "health_score": "GREEN" if margin > 12 else ("YELLOW" if margin >= 5 else "RED")
-        }
     except Exception as e:
-        logger.error(f"Summary Error: {e}")
-        traceback.print_exc()
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.warning(f"Odoo Compras Error: {e}")
+
+    # OPEX (Supabase)
+    opex_total = 0
+    try:
+        from supabase_client import get_supabase
+        sb = get_supabase()
+        if sb:
+            res_opex = sb.table('transactions').select("monto").filter('entidad', 'eq', 'BUSINESS').filter('tipo', 'eq', 'EXPENSE').filter('fecha', 'gte', primer_dia).filter('fecha', 'lte', ultimo_dia).filter('user_id', 'eq', user_id).execute()
+            opex_total = sum(item.get('monto', 0) for item in res_opex.data)
+    except Exception as e:
+        logger.warning(f"Supabase OPEX Error: {e}")
+
+    income_total = ventas_total
+    denominator = income_total if income_total > 0 else 1
+    margin = ((income_total - compras_total - float(opex_total)) / denominator * 100) if income_total > 0 else 0
+
+    return {
+        "periodo": f"{anio_q}-{mes_q:02d}",
+        "ventas": round(income_total, 2),
+        "compras": round(compras_total, 2),
+        "opex": round(float(opex_total), 2),
+        "margen_neto": round(margin, 2),
+        "health_score": "GREEN" if margin > 12 else ("YELLOW" if margin >= 5 else "RED"),
+        "version": "3.7.18"
+    }
 
 @app.get("/api/v1/business/expenses")
 def business_expenses_proxy(anio: Optional[int] = Query(None), mes: Optional[int] = Query(None), user_id: str = Depends(get_user_id)):

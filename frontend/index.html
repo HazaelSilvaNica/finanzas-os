@@ -965,7 +965,7 @@
         async function updateDonutChart(entidad, canvasId) {
             try {
                 const endpoint = entidad === 'business' ? '/business/expenses' : '/personal/expenses';
-                const res = await fetch(`${API_BASE}${API_VERSION}${endpoint}`);
+                const res = await fetch(`${API_BASE}${API_VERSION}${endpoint}`, { headers: getAuthHeaders() });
                 const data = await res.json();
                 
                 // Agrupar por categoría
@@ -1039,7 +1039,7 @@
 
         async function updateYearlyChart(entidad, canvasId) {
             try {
-                const res = await fetch(`${API_BASE}${API_VERSION}/history/yearly?entidad=${entidad}&anio=2026`);
+                const res = await fetch(`${API_BASE}${API_VERSION}/history/yearly?entidad=${entidad}&anio=2026`, { headers: getAuthHeaders() });
                 const data = await res.json();
                 
                 // Conversión a Acumulado Anual
@@ -1136,7 +1136,7 @@
 
         async function fetchAnalytics() {
             try {
-                const res = await fetch(`${API_BASE}${API_VERSION}/analysis/forecast?entidad=business`);
+                const res = await fetch(`${API_BASE}${API_VERSION}/analysis/forecast?entidad=business`, { headers: getAuthHeaders() });
                 const data = await res.json();
                 document.getElementById('runway-days').textContent = `${data.runway_days} Días`;
                 document.getElementById('liquidez-actual').textContent = `Liquidez: ${formatMoney(data.liquidez_actual)}`;
@@ -1149,7 +1149,7 @@
 
         async function fetchDebts(entidad) {
             try {
-                const res = await fetch(`${API_BASE}${API_VERSION}/debts?entidad=${entidad}`);
+                const res = await fetch(`${API_BASE}${API_VERSION}/debts?entidad=${entidad}`, { headers: getAuthHeaders() });
                 const data = await res.json();
                 const container = document.getElementById(`debts-list-${entidad}`);
                 container.innerHTML = '';
@@ -1220,7 +1220,7 @@
 
         async function deleteDebt(id) {
             if (confirm("Eliminar deuda de la vista?")) {
-                await fetch(`${API_BASE}${API_VERSION}/debts/${id}`, { method: 'DELETE' });
+                await fetch(`${API_BASE}${API_VERSION}/debts/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
                 State.refreshUI();
             }
         }
