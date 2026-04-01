@@ -711,7 +711,7 @@
         window.localToken = null;
 
         function getAuthHeaders() {
-            const token = window.localToken || localStorage.getItem('supabase-token');
+            const token = window.localToken || localStorage.getItem('sb-token');
             return token ? { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } : {};
         }
 
@@ -723,7 +723,7 @@
                 const accessToken = params.get('access_token');
                 if (accessToken) {
                     window.localToken = accessToken;
-                    localStorage.setItem('supabase-token', accessToken);
+                    localStorage.setItem('sb-token', accessToken);
                     window.location.hash = ""; // Clean URL
                 }
             }
@@ -732,7 +732,7 @@
         }
         
         async function checkSession() {
-            const token = window.localToken || localStorage.getItem('supabase-token');
+            const token = window.localToken || localStorage.getItem('sb-token');
             if (token) {
                 // Verificación pasiva - asumimos logueado y dejamos que el 401 de la API decida si expiró
                 document.getElementById('auth-screen').classList.add('hidden');
