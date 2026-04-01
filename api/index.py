@@ -82,7 +82,27 @@ def get_user_id(authorization: str = Header(None)):
 
 @app.get("/api/v1/health")
 def health_check():
-    return {"status": "ok", "version": "3.7.0", "env": os.getenv("VERCEL_ENV", "local")}
+    return {"status": "ok", "version": "3.7.1", "env": os.getenv("VERCEL_ENV", "local")}
+
+# Proxy/Direct routes for Vercel stability as requested
+@app.post("/api/v1/transactions")
+async def register_transaction_proxy(
+    monto: float = Form(...),
+    tipo: str = Form(...),
+    entidad: str = Form(...),
+    concepto: str = Form(...),
+    fecha: str = Form(...),
+    categoria: Optional[str] = Form(None),
+    archivo: Optional[UploadFile] = File(None),
+    user_id: str = Depends(get_user_id)
+):
+    from api_v1 import add_transaction
+    return await add_transaction(monto, tipo, entidad, concepto, fecha, categoria, archivo, user_id)
+
+@app.post("/api/v1/ai/advice")
+async def ai_advice_proxy(payload: Dict, user_id: str = Depends(get_user_id)):
+    from api_v1 import get_ai_advice
+    return await get_ai_advice(payload, user_id)
 
 # ─────────────────────────────────────────────
 #  Imports conditionally if they don't crash

@@ -1155,21 +1155,27 @@
         }
 
         function getAuthHeaders() {
-            return window.localToken ? { 'Authorization': `Bearer ${window.localToken}` } : {};
+            const token = localStorage.getItem('sb-token') || window.localToken;
+            return token ? { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } : {};
         }
 
         async function fetchSummary() {
             try {
                 const res = await fetch(`${API_BASE}${API_VERSION}/business/summary`, { headers: getAuthHeaders() });
                 const data = await res.json();
-                document.getElementById('kpi-ventas').textContent = formatMoney(data.ventas);
-                document.getElementById('kpi-compras').textContent = formatMoney(data.compras);
-                document.getElementById('kpi-opex').textContent = formatMoney(data.opex);
-                document.getElementById('kpi-margen').textContent = `${data.margen_neto}%`;
+                
+                const setHtml = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+                
+                setHtml('bi-ventas', formatMoney(data.ventas));
+                setHtml('bi-compras', formatMoney(data.compras));
+                setHtml('bi-opex', formatMoney(data.opex));
+                setHtml('bi-margen', `${data.margen_neto}%`);
                 
                 const card = document.getElementById('card-margen');
-                card.style.borderLeft = data.health_score === 'GREEN' ? '8px solid var(--ios-green)' : '8px solid var(--ios-red)';
-            } catch (e) { console.error(e); }
+                if (card) {
+                    card.style.borderLeft = data.health_score === 'GREEN' ? '8px solid var(--ios-green)' : '8px solid var(--ios-red)';
+                }
+            } catch (e) { console.error("fetchSummary Error:", e); }
         }
 
         async function fetchPersonalSummary() {
@@ -1328,7 +1334,20 @@
         }
 
         window.onload = () => { 
-            console.log("HSR Control — Inyectando sesión de seguridad...");
+            console.log("HSR Control — Capturando sesión...");
+            
+            // Fix 401: Captura forzada de token desde URL Hash
+            const hash = window.location.hash;
+            if (hash && hash.includes("access_token")) {
+                const params = new URLSearchParams(hash.substring(1));
+                const token = params.get('access_token');
+                if (token) {
+                    localStorage.setItem('sb-token', token);
+                    window.localToken = token;
+                    window.location.hash = ""; // Limpiar URL
+                }
+            }
+
             const initSB = () => {
                 try {
                     const client = window.supabase;
@@ -1337,8 +1356,7 @@
                         console.log("✅ Supabase Listo.");
                         window.checkAuth();
                     } else {
-                        console.error("❌ Supabase no se encuentra.");
-                        setTimeout(initSB, 500); // Reintento si CDN tarda
+                        setTimeout(initSB, 500);
                     }
                 } catch (e) { console.error("Error init:", e); }
             };
