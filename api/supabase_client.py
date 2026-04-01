@@ -5,11 +5,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 url: str = os.environ.get("SUPABASE_URL")
-key: str = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
+# Búsqueda robusta de la llave (Service Role Key / Service Key / Supabase Key)
+key: str = os.environ.get("SUPABASE_SERVICE_ROLE_KEY") or os.environ.get("SUPABASE_SERVICE_KEY") or os.environ.get("SUPABASE_KEY")
 
 # Initialize client with safety check
 if not url or not key:
-    print(f"❌ CRITICAL: Missing Supabase Credentials. URL: {url}, KEY length: {len(key) if key else 0}")
+    print(f"❌ CRITICAL: Missing Supabase Credentials. URL: {url}, KEY found: {'Yes' if key else 'No'}")
     supabase = None
 else:
     try:
