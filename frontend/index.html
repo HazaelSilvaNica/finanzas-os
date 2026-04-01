@@ -298,7 +298,7 @@
                     <div class="w-9 h-9 bg-black rounded-xl flex items-center justify-center shrink-0">
                         <span class="text-white font-bold text-lg">H</span>
                     </div>
-                    <span class="text-xl font-bold tracking-tight hidden sm:inline">HSR<span class="text-[#007AFF]">Control</span> <span class="text-[10px] text-slate-300 font-normal">v3.7.5</span></span>
+                    <span class="text-xl font-bold tracking-tight hidden sm:inline">HSR<span class="text-[#007AFF]">Control</span> <span class="text-[10px] text-slate-300 font-normal">v3.7.7</span></span>
                 </div>
                 <div class="hidden lg:flex space-x-6 text-slate-500">
                     <button class="hover:text-black transition-colors" onclick="switchTab('business')">Finanzas Electriganadero</button>
@@ -746,11 +746,22 @@
                 console.log("🔓 Sesión activa. Entrando...");
                 if (authOverlay) authOverlay.classList.add('hidden');
                 if (mainApp) mainApp.classList.remove('hidden');
-                State.refreshUI();
+                State.refreshUI().catch(err => {
+                    if (err.message.includes("401")) {
+                        console.error("Sesión inválida en servidor. Limpiando...");
+                        logout();
+                    }
+                });
             } else {
                 if (authOverlay) authOverlay.classList.remove('hidden');
                 if (mainApp) mainApp.classList.add('hidden');
             }
+        }
+        
+        function logout() {
+            localStorage.removeItem('sb-token');
+            window.localToken = null;
+            window.location.reload();
         }
         
         // 3. UI HELPERS
@@ -1053,6 +1064,17 @@
             } catch (e) { console.error(e); }
         }
 
+        function renderList(targetId, items) {
+            const container = document.getElementById(targetId);
+            if (!container) return;
+            
+            if (!items || !Array.isArray(items) || items.length === 0) {
+                container.innerHTML = `<div class="p-10 text-center text-slate-400 text-xs italic">No hay movimientos registrados.</div>`;
+                return;
+            }
+            
+            container.innerHTML = "";
+            items.forEach(tx => {
         function updateFormCategories(tab) {
             const select = document.getElementById('m-categoria');
             select.innerHTML = '';
