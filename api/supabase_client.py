@@ -9,18 +9,33 @@ def get_supabase() -> Client:
     global _supabase_instance, _last_error
     if _supabase_instance is not None: return _supabase_instance
 
-    url = (os.environ.get("SUPABASE_URL") or "").strip()
-    key = (os.environ.get("SUPABASE_SERVICE_ROLE_KEY") or os.environ.get("SUPABASE_SERVICE_KEY") or "").strip()
+    url = (os.environ.get("SUPABASE_URL") or os.environ.get("NEXT_PUBLIC_SUPABASE_URL") or "").strip()
+    key = (os.environ.get("SUPABASE_SERVICE_ROLE_KEY") or os.environ.get("SUPABASE_SERVICE_KEY") or os.environ.get("SUPABASE_KEY") or "").strip()
 
     if not url or not key:
         _last_error = f"Missing vars: URL={bool(url)}, KEY={bool(key)}"
         return None
 
     try:
-        _supabase_instance = create_client(url, key)
+        instance = create_client(url, key)
+        _supabase_instance = instance
         return _supabase_instance
     except Exception as e:
         _last_error = str(e)
         return None
 
 def get_last_error(): return _last_error
+
+# Global instance for compatibility with index.py line 33
+supabase = get_supabase()
+
+def init_storage():
+    """Compatibility for database engine initialization."""
+    sb = get_supabase()
+    if not sb: return
+    try:
+        buckets = sb.storage.list_buckets()
+        if not any(b.name == 'comprobantes' for b in buckets):
+            sb.storage.create_bucket('comprobantes', options={'public': True})
+    except:
+        pass
