@@ -298,7 +298,7 @@
                     <div class="w-9 h-9 bg-black rounded-xl flex items-center justify-center shrink-0">
                         <span class="text-white font-bold text-lg">H</span>
                     </div>
-                    <span class="text-xl font-bold tracking-tight hidden sm:inline">HSR<span class="text-[#007AFF]">Control</span></span>
+                    <span class="text-xl font-bold tracking-tight hidden sm:inline">HSR<span class="text-[#007AFF]">Control</span> <span class="text-[10px] text-slate-300 font-normal">v3.7.2</span></span>
                 </div>
                 <div class="hidden lg:flex space-x-6 text-slate-500">
                     <button class="hover:text-black transition-colors" onclick="switchTab('business')">Finanzas Electriganadero</button>
@@ -963,41 +963,38 @@
         // ─────────────────────────────────────────────────────
         async function fetchBISummary() {
             try {
-                const res = await fetch(`${API_BASE}${API_VERSION}/bi/summary?anio=${State.year || ''}&mes=${State.month || ''}`);
+                const res = await fetch(`${API_BASE}${API_VERSION}/bi/summary?anio=${State.year || ''}&mes=${State.month || ''}`, {
+                    headers: getAuthHeaders()
+                });
                 const data = await res.json();
-                const m = data.metrics;
+                const m = data.metrics || data; // Handle consolidated or nested
                 
-                const updateEl = (id, val, v_id, vari) => {
+                const setVal = (id, val, variId, vari) => {
                     const el = document.getElementById(id);
                     if (el) el.textContent = formatMoney(val);
-                    const vEl = document.getElementById(v_id);
-                    if (vEl) {
-                        const word = vari >= 0 ? 'más' : 'menos';
-                        const absVari = Math.abs(vari);
-                        vEl.textContent = `${absVari}% ${word} que mes anterior`;
-                        vEl.className = `text-[10px] font-bold ${vari >= 0 ? 'text-red-500' : 'text-green-500'}`;
-                        if (id === 'bi-ventas') {
-                            vEl.className = `text-[10px] font-bold ${vari >= 0 ? 'text-green-500' : 'text-red-500'}`;
-                        }
+                    const vEl = document.getElementById(variId);
+                    if (vEl && vari !== undefined) {
+                        const word = vari >= 0 ? '↗' : '↘';
+                        vEl.textContent = `${word} ${Math.abs(vari)}%`;
+                        vEl.className = `text-[10px] font-bold ${vari >= 0 ? (id.includes('ventas') ? 'text-green-500' : 'text-red-500') : (id.includes('ventas') ? 'text-red-500' : 'text-green-500')}`;
                     }
                 };
 
-                updateEl('bi-ventas', m.ventas.total, 'bi-ventas-var', m.ventas.var);
-                updateEl('bi-compras', m.compras.total, 'bi-compras-var', m.compras.var);
-                updateEl('bi-marketing', m.marketing.total, 'bi-marketing-var', m.marketing.var);
-                updateEl('bi-comisiones', m.comisiones.total, 'bi-comisiones-var', m.comisiones.var);
-
-                // ROI Calculation (Empresa)
-                if (m.marketing.total > 0) {
-                    const roi = (m.ventas.total / m.marketing.total).toFixed(1);
-                    document.getElementById('roi-mkt').textContent = `${roi}x`;
-                }
-                if (m.ventas.total > 0) {
-                    const cost = ((m.comisiones.total / m.ventas.total) * 100).toFixed(1);
-                    document.getElementById('cost-sales').textContent = `${cost}%`;
+                if (m.ventas) {
+                    setVal('bi-ventas', m.ventas.total || m.ventas, 'bi-ventas-var', m.ventas.var);
+                    setVal('bi-compras', m.compras.total || m.compras, 'bi-compras-var', m.compras.var);
+                    setVal('bi-marketing', m.marketing?.total || 0, 'bi-marketing-var', m.marketing?.var);
+                    setVal('bi-comisiones', m.comisiones?.total || 0, 'bi-comisiones-var', m.comisiones?.var);
                 }
 
-            } catch (e) { console.error(e); }
+                // Auto-calc ROI if data available
+                const mktVal = m.marketing?.total || 0;
+                const vntVal = m.ventas?.total || m.ventas || 0;
+                if (mktVal > 0) {
+                    const roiEl = document.getElementById('roi-mkt');
+                    if(roiEl) roiEl.textContent = `${(vntVal / mktVal).toFixed(1)}x`;
+                }
+            } catch (e) { console.error("BI Summary Error:", e); }
         }
 
         async function updateYearlyChart(entidad, canvasId) {
