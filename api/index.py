@@ -82,16 +82,14 @@ def get_user_id(authorization: str = Header(None)):
 
 @app.get("/api/v1/health")
 def health_check():
-    from supabase_client import get_supabase
+    from supabase_client import get_supabase, get_last_error
     sb = get_supabase()
-    
-    # Escáner de nombres de llaves (Sin valores por seguridad)
     debug_keys = [k for k in os.environ.keys() if k.startswith(("SUPABASE_", "GOOGLE_", "NEXT_PUBLIC_SUPABASE_"))]
-    
     return {
         "status": "ok", 
-        "version": "3.7.12", 
+        "version": "3.7.13", 
         "supabase": "CONNECTED" if sb else "OFFLINE",
+        "supabase_error": get_last_error(),
         "debug_keys": debug_keys,
         "env": os.getenv("VERCEL_ENV", "local")
     }

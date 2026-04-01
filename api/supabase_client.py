@@ -1,47 +1,26 @@
 import os
+import traceback
 from supabase import create_client, Client
 
-# Singleton para el cliente de Supabase
 _supabase_instance: Client = None
+_last_error = None
 
 def get_supabase() -> Client:
-    """
-    Retorna el cliente de Supabase con sanitización estricta.
-    Removido load_dotenv() para permitir que Vercel use su propio ambiente.
-    """
-    global _supabase_instance
-    if _supabase_instance is not None:
-        return _supabase_instance
+    global _supabase_instance, _last_error
+    if _supabase_instance is not None: return _supabase_instance
 
-    # Leemos y limpiamos espacios en blanco
-    raw_url = os.environ.get("SUPABASE_URL") or os.environ.get("NEXT_PUBLIC_SUPABASE_URL")
-    raw_key = (
-        os.environ.get("SUPABASE_SERVICE_ROLE_KEY") or 
-        os.environ.get("SUPABASE_SERVICE_KEY") or 
-        os.environ.get("SUPABASE_KEY") or 
-        os.environ.get("SUPABASE_ANON_KEY")
-    )
-
-    url = raw_url.strip() if raw_url else None
-    key = raw_key.strip() if raw_key else None
+    url = (os.environ.get("SUPABASE_URL") or "").strip()
+    key = (os.environ.get("SUPABASE_SERVICE_ROLE_KEY") or os.environ.get("SUPABASE_SERVICE_KEY") or "").strip()
 
     if not url or not key:
+        _last_error = f"Missing vars: URL={bool(url)}, KEY={bool(key)}"
         return None
 
     try:
         _supabase_instance = create_client(url, key)
         return _supabase_instance
-    except:
+    except Exception as e:
+        _last_error = str(e)
         return None
 
-# Compatibilidad
-supabase = get_supabase()
-
-def init_storage():
-    sb = get_supabase()
-    if not sb: return
-    try:
-        buckets = sb.storage.list_buckets()
-        if not any(b.name == 'comprobantes' for b in buckets):
-            sb.storage.create_bucket('comprobantes', options={'public': True})
-    except: pass
+def get_last_error(): return _last_error
