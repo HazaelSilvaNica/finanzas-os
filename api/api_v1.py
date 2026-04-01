@@ -1,9 +1,10 @@
 import os
 import sys
 import logging
+import traceback
 
 # Ensure local imports within /api work correctly on Vercel
-sys.path.append(os.path.dirname(__file__))
+sys.path.insert(0, os.path.dirname(__file__))
 import uuid
 import io
 from datetime import datetime, date, timedelta
@@ -49,10 +50,10 @@ def get_user_id(authorization: str = Header(None)):
 router = APIRouter(prefix="/api/v1")
 logger = logging.getLogger("finanzasOS.v1")
 
-# Configuración Gemini
-# Buscamos en env vars primero (Vercel), luego fallback a hardcoded para desarrollo rápido
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "AIzaSyC4BYndjbqdX9FknsGqfTiK167x6s8quCI")
-genai.configure(api_key=GOOGLE_API_KEY)
+# Configuración Gemini - Usando variables de entorno
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+if GOOGLE_API_KEY:
+    genai.configure(api_key=GOOGLE_API_KEY)
 
 UPLOADS_DIR = "/tmp/uploads"
 os.makedirs(UPLOADS_DIR, exist_ok=True)
@@ -93,6 +94,7 @@ async def process_document_with_gemini(file_content: bytes, mime_type: str):
         return json.loads(clean_json)
     except Exception as e:
         logger.error(f"Gemini processing error: {str(e)}")
+        traceback.print_exc()
         raise e
 
 # @router.post("/ocr/process")
@@ -317,6 +319,7 @@ async def process_ticket_ocr(archivo: UploadFile = File(...), user_id: str = Dep
         
     except Exception as e:
         logger.error(f"OCR Error: {e}")
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/transactions")
@@ -348,20 +351,24 @@ async def add_transaction(
             logger.error(f"Storage Error: {e}")
 
     tx_data = {
-        "monto": monto, 
+        "monto": float(monto), 
         "tipo": tipo.upper(), 
         "categoria": categoria,
         "concepto": concepto, 
         "entidad": entidad.upper(), 
-        "fecha": fecha[:10], 
+        "fecha": str(fecha)[:10], 
         "file_url": file_url,
         "user_id": user_id
     }
     
-    res = supabase.table('transactions').insert(tx_data).execute()
-    new_id = res.data[0]['id'] if res.data else str(uuid.uuid4())
-    
-    return {"status": "success", "id": new_id}
+    try:
+        res = supabase.table('transactions').insert(tx_data).execute()
+        new_id = res.data[0]['id'] if res.data else str(uuid.uuid4())
+        return {"status": "success", "id": new_id}
+    except Exception as e:
+        logger.error(f"Database Error: {e}")
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Error al registrar en Supabase")
 
 @router.put("/transactions/{tx_id}")
 def update_transaction(tx_id: str, data: Dict, user_id: str = Depends(get_user_id)):

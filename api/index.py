@@ -1,9 +1,10 @@
 import os
 import sys
 import logging
+import traceback
 
-# Vercel Path Resolution: Ensures local imports like 'database' or 'api_v1' work in serverless
-sys.path.append(os.path.dirname(__file__))
+# Vercel Path Resolution: Ensure local imports (database, api_v1) work first
+sys.path.insert(0, os.path.dirname(__file__))
 import uuid
 import json
 from datetime import datetime, date, timedelta
@@ -17,9 +18,12 @@ import google.generativeai as genai
 
 load_dotenv()
 
-# Pre-configuration
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "AIzaSyC4BYndjbqdX9FknsGqfTiK167x6s8quCI")
-genai.configure(api_key=GOOGLE_API_KEY)
+# Pre-configuration - Using Environment Variables exclusively for security
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+if GOOGLE_API_KEY:
+    genai.configure(api_key=GOOGLE_API_KEY)
+else:
+    logging.warning("⚠️ GOOGLE_API_KEY missing. Ian AI features will be limited.")
 UPLOADS_DIR = "/tmp/uploads"
 
 # ─────────────────────────────────────────────
@@ -73,6 +77,7 @@ def get_user_id(authorization: str = Header(None)):
         return user_res.user.id
     except Exception as e:
         logger.error(f"Auth error: {e}")
+        traceback.print_exc()
         raise HTTPException(status_code=401, detail="Authentication failed")
 
 # ─────────────────────────────────────────────
@@ -102,6 +107,7 @@ async def get_ai_advice(payload: Dict, user_id: str = Depends(get_user_id)):
         return {"advice": advice_html}
     except Exception as e:
         logger.error(f"Ian Error: {e}")
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Ian Error: {str(e)}")
 
 # ─────────────────────────────────────────────
@@ -135,6 +141,7 @@ try:
     app.include_router(v1_router)
 except Exception as e:
     logger.error(f"Could not load v1_router due to imports: {e}")
+    traceback.print_exc()
 
 # ─────────────────────────────────────────────
 #  Startup & Static
@@ -144,7 +151,8 @@ async def startup_event():
     if not os.getenv("VERCEL"):
         try:
             init_db()
-        except: pass
+        except Exception: 
+            traceback.print_exc()
     if not os.path.exists(UPLOADS_DIR):
         os.makedirs(UPLOADS_DIR, exist_ok=True)
 
