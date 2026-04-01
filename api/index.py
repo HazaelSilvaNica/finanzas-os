@@ -39,19 +39,7 @@ from odoo_client import odoo
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger("finanzasOS")
 
-app = FastAPI(
-    title="FinanzasOS 3.7",
-    description="Sistema contable consolidado para Resiliencia en Vercel.",
-    version="3.7.20",
-    redirect_slashes=False
-)
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["GET", "POST", "OPTIONS", "DELETE", "PUT"],
-    allow_headers=["*"],
-)
 
 # ─────────────────────────────────────────────
 #  Security Helper (Auth)
@@ -82,7 +70,7 @@ def health_check():
     debug_keys = [k for k in os.environ.keys() if k.startswith(("SUPABASE_", "GOOGLE_", "NEXT_PUBLIC_SUPABASE_"))]
     return {
         "status": "ok", 
-        "version": "3.7.18", 
+        "version": "3.7.21", 
         "supabase": "CONNECTED" if sb else "OFFLINE",
         "supabase_error": get_last_error(),
         "debug_keys": debug_keys,
@@ -140,7 +128,7 @@ def get_business_summary(anio: Optional[int] = Query(None), mes: Optional[int] =
         "opex": round(float(opex_total), 2),
         "margen_neto": round(margin, 2),
         "health_score": "GREEN" if margin > 12 else ("YELLOW" if margin >= 5 else "RED"),
-        "version": "3.7.18"
+        "version": "3.7.21"
     }
 
 @app.get("/api/v1/business/expenses")
@@ -267,6 +255,26 @@ def get_personal_summary_proxy(user_id: str = Depends(get_user_id)):
 # except Exception as e:
 #     logger.error(f"Could not load v1_router due to imports: {e}")
 #     traceback.print_exc()
+
+# ─────────────────────────────────────────────
+#  Startup & Static
+# ─────────────────────────────────────────────
+# ─────────────────────────────────────────────
+#  FastAPI Instance (Moved to end for Vercel)
+# ─────────────────────────────────────────────
+app = FastAPI(
+    title="FinanzasOS 3.7",
+    description="Sistema contable consolidado para Resiliencia en Vercel.",
+    version="3.7.21",
+    redirect_slashes=False
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["GET", "POST", "OPTIONS", "DELETE", "PUT"],
+    allow_headers=["*"],
+)
 
 # ─────────────────────────────────────────────
 #  Startup & Static
