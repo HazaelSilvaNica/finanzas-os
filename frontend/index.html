@@ -697,7 +697,7 @@
                     alert("⚠️ Sistema cargando... intenta en 2 segundos.");
                     return;
                 }
-                const { error } = await window.supabaseInstance.auth.signInWithOAuth({
+                const { data, error } = await window.supabaseInstance.auth.signInWithOAuth({
                     provider: 'google',
                     options: { redirectTo: window.location.origin }
                 });
@@ -707,35 +707,42 @@
             }
         };
 
-        window.checkAuth = async function() {
-            if (!window.supabaseInstance) return;
-            const { data: { session } } = await window.supabaseInstance.auth.getSession();
-            window.handleAuthChange(session);
-            window.supabaseInstance.auth.onAuthStateChange((_event, session) => window.handleAuthChange(session));
-        };
+        // ═══════════════════════════════════════════════════ CORE APP LOGIC
+        window.localToken = null;
 
-        window.handleAuthChange = function(session) {
-            const overlay = document.getElementById('auth-overlay');
-            const mainApp = document.getElementById('main-app');
-            const errEl = document.getElementById('auth-error');
+        function getAuthHeaders() {
+            const token = window.localToken || localStorage.getItem('supabase-token');
+            return token ? { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } : {};
+        }
 
-            if (session) {
-                if (session.user.email === ADMIN_EMAIL) {
-                    window.localToken = session.access_token;
-                    overlay.classList.add('opacity-0', 'pointer-events-none');
-                    mainApp.classList.remove('hidden');
-                    if (typeof State !== 'undefined') State.refreshUI();
-                } else {
-                    errEl.textContent = "Acceso denegado: " + session.user.email + " no está autorizado.";
-                    errEl.classList.remove('hidden');
-                    setTimeout(() => window.supabaseInstance.auth.signOut(), 3000);
+        async function checkAuth() {
+            // Priority 1: Check URL hash for token
+            const hash = window.location.hash;
+            if (hash && hash.includes("access_token")) {
+                const params = new URLSearchParams(hash.substring(1));
+                const accessToken = params.get('access_token');
+                if (accessToken) {
+                    window.localToken = accessToken;
+                    localStorage.setItem('supabase-token', accessToken);
+                    window.location.hash = ""; // Clean URL
                 }
-            } else {
-                overlay.classList.remove('opacity-0', 'pointer-events-none');
-                mainApp.classList.add('hidden');
-                window.localToken = null;
             }
-        };
+            
+            checkSession();
+        }
+        
+        async function checkSession() {
+            const token = window.localToken || localStorage.getItem('supabase-token');
+            if (token) {
+                // Verificación pasiva - asumimos logueado y dejamos que el 401 de la API decida si expiró
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('app-container').classList.remove('hidden');
+                State.refreshUI();
+            } else {
+                document.getElementById('auth-screen').classList.remove('hidden');
+                document.getElementById('app-container').classList.add('hidden');
+            }
+        }
         
         // 3. UI HELPERS
         function showToast(msg = "Guardado exitoso") {

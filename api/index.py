@@ -80,55 +80,6 @@ def get_user_id(authorization: str = Header(None)):
         traceback.print_exc()
         raise HTTPException(status_code=401, detail="Authentication failed")
 
-# ─────────────────────────────────────────────
-#  Standalone AI Assistant (Ian)
-# ─────────────────────────────────────────────
-@app.post("/api/v1/ai/advice")
-async def get_ai_advice(payload: Dict, user_id: str = Depends(get_user_id)):
-    context = payload.get("context", "business")
-    data = payload.get("data", {})
-    user_query = payload.get("prompt", "Dame un reporte estratégico.")
-    
-    model = genai.GenerativeModel('gemini-1.5-flash')
-    system_instruction = f"""
-    Eres Ian, el CFO Virtual experto de Hazael Silva. 
-    Contexto ({context.upper()}): {data}
-    Responde en HTML ligero (p, strong, ul, li) con consejos pragmáticos.
-    Pregunta: {user_query}
-    """
-    
-    try:
-        print(f"DEBUG — Ian Standalone Payload: {payload}")
-        response = model.generate_content(system_instruction)
-        if not response or not response.text:
-            raise Exception("IA sin respuesta")
-        
-        advice_html = response.text.replace("```html", "").replace("```", "").strip()
-        return {"advice": advice_html}
-    except Exception as e:
-        logger.error(f"Ian Error: {e}")
-        traceback.print_exc()
-        raise HTTPException(status_code=500, detail=f"Ian Error: {str(e)}")
-
-# ─────────────────────────────────────────────
-#  Standalone BI & Summary
-# ─────────────────────────────────────────────
-@app.get("/api/v1/business/summary")
-def get_business_summary(anio: Optional[int] = Query(None), mes: Optional[int] = Query(None), user_id: str = Depends(get_user_id)):
-    hoy = date.today()
-    anio_q, mes_q = anio or hoy.year, mes or hoy.month
-    start_date = f"{anio_q}-{mes_q:02d}-01"
-    
-    try:
-        # Simple health check endpoint or basic summary to prove connectivity
-        return {
-            "periodo": f"{anio_q}-{mes_q:02d}",
-            "status": "CONSOLIDATED_STABLE",
-            "msg": "El servicio se ha estabilizado. Cargando métricas..."
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
 @app.get("/api/v1/health")
 def health_check():
     return {"status": "ok", "version": "3.7.0", "env": os.getenv("VERCEL_ENV", "local")}
