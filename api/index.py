@@ -65,12 +65,13 @@ def get_user_id(authorization: str = Header(None)):
 
 @app.get("/api/v1/health")
 def health_check():
+    print('Solicitud recibida en el backend: /api/v1/health')
     from supabase_client import get_supabase, get_last_error
     sb = get_supabase()
     debug_keys = [k for k in os.environ.keys() if k.startswith(("SUPABASE_", "GOOGLE_", "NEXT_PUBLIC_SUPABASE_"))]
     return {
         "status": "ok", 
-        "version": "3.7.21", 
+        "version": "3.7.22", 
         "supabase": "CONNECTED" if sb else "OFFLINE",
         "supabase_error": get_last_error(),
         "debug_keys": debug_keys,
@@ -83,6 +84,7 @@ def health_check():
 
 @app.get("/api/v1/business/summary")
 def get_business_summary(anio: Optional[int] = Query(None), mes: Optional[int] = Query(None), user_id: str = Depends(get_user_id)):
+    print('Solicitud recibida en el backend: /api/v1/business/summary')
     hoy = date.today()
     anio_q, mes_q = anio or hoy.year, mes or hoy.month
     primer_dia = f"{anio_q}-{mes_q:02d}-01"
@@ -128,7 +130,7 @@ def get_business_summary(anio: Optional[int] = Query(None), mes: Optional[int] =
         "opex": round(float(opex_total), 2),
         "margen_neto": round(margin, 2),
         "health_score": "GREEN" if margin > 12 else ("YELLOW" if margin >= 5 else "RED"),
-        "version": "3.7.21"
+        "version": "3.7.22"
     }
 
 @app.get("/api/v1/business/expenses")
@@ -156,6 +158,7 @@ async def register_transaction(
     archivo: Optional[UploadFile] = File(None),
     user_id: str = Depends(get_user_id)
 ):
+    print('Solicitud recibida en el backend: /api/v1/transactions')
     try:
         # File handling
         file_url = None
@@ -186,6 +189,7 @@ async def register_transaction(
 
 @app.post("/api/v1/ai/advice", methods=["POST", "OPTIONS"])
 async def get_ai_advice_consolidated(payload: Dict, user_id: str = Depends(get_user_id)):
+    print('Solicitud recibida en el backend: /api/v1/ai/advice')
     context, data, prompt = payload.get("context", "business"), payload.get("data", {}), payload.get("prompt", "")
     model = genai.GenerativeModel('gemini-1.5-flash')
     sys_inst = f"Eres Ian, CFO Virtual. Contexto {context}: {data}. Responde en HTML ligero. Pregunta: {prompt}"
@@ -262,19 +266,7 @@ def get_personal_summary_proxy(user_id: str = Depends(get_user_id)):
 # ─────────────────────────────────────────────
 #  FastAPI Instance (Moved to end for Vercel)
 # ─────────────────────────────────────────────
-app = FastAPI(
-    title="FinanzasOS 3.7",
-    description="Sistema contable consolidado para Resiliencia en Vercel.",
-    version="3.7.21",
-    redirect_slashes=False
-)
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["GET", "POST", "OPTIONS", "DELETE", "PUT"],
-    allow_headers=["*"],
-)
 
 # ─────────────────────────────────────────────
 #  Startup & Static
@@ -297,6 +289,23 @@ if not os.getenv("VERCEL"):
     frontend_path = os.path.join(os.path.dirname(__file__), "..", "frontend")
     if os.path.exists(frontend_path):
         app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
+
+# ─────────────────────────────────────────────
+#  Wait for it... FastAPI Instance (Must be at the very end!)
+# ─────────────────────────────────────────────
+app = FastAPI(
+    title="FinanzasOS 3.7",
+    description="Sistema contable consolidado para Resiliencia en Vercel.",
+    version="3.7.22",
+    redirect_slashes=False
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["GET", "POST", "OPTIONS", "DELETE", "PUT"],
+    allow_headers=["*"],
+)
 
 if __name__ == "__main__":
     import uvicorn
