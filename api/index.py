@@ -82,7 +82,7 @@ def get_user_id(authorization: str = Header(None)):
 
 @app.get("/api/v1/health")
 def health_check():
-    return {"status": "ok", "version": "3.7.3", "env": os.getenv("VERCEL_ENV", "local")}
+    return {"status": "ok", "version": "3.7.4", "env": os.getenv("VERCEL_ENV", "local")}
 
 # ─────────────────────────────────────────────
 #  CONSOLIDATED BUSINESS LOGIC (v3.7.2)

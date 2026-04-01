@@ -298,7 +298,7 @@
                     <div class="w-9 h-9 bg-black rounded-xl flex items-center justify-center shrink-0">
                         <span class="text-white font-bold text-lg">H</span>
                     </div>
-                    <span class="text-xl font-bold tracking-tight hidden sm:inline">HSR<span class="text-[#007AFF]">Control</span> <span class="text-[10px] text-slate-300 font-normal">v3.7.2</span></span>
+                    <span class="text-xl font-bold tracking-tight hidden sm:inline">HSR<span class="text-[#007AFF]">Control</span> <span class="text-[10px] text-slate-300 font-normal">v3.7.4</span></span>
                 </div>
                 <div class="hidden lg:flex space-x-6 text-slate-500">
                     <button class="hover:text-black transition-colors" onclick="switchTab('business')">Finanzas Electriganadero</button>
@@ -716,16 +716,22 @@
         }
 
         async function checkAuth() {
-            // Priority 1: Check URL hash for token
+            // 1. Prioridad: Capturar Token desde Hash (Redirect desde Google)
             const hash = window.location.hash;
             if (hash && hash.includes("access_token")) {
+                console.log("🔑 Detectado token en Hash...");
                 const params = new URLSearchParams(hash.substring(1));
                 const accessToken = params.get('access_token');
                 if (accessToken) {
                     window.localToken = accessToken;
                     localStorage.setItem('sb-token', accessToken);
-                    window.location.hash = ""; // Clean URL
+                    // Limpieza segura DESPUÉS de guardar
+                    window.history.replaceState(null, null, window.location.pathname);
+                    console.log("✅ Sesión capturada y URL limpia.");
                 }
+            } else {
+                // 2. Si no hay hash, leer de persistencia
+                window.localToken = localStorage.getItem('sb-token');
             }
             
             checkSession();
@@ -1331,19 +1337,8 @@
         }
 
         window.onload = () => { 
-            console.log("HSR Control — Capturando sesión...");
-            
-            // Fix 401: Captura forzada de token desde URL Hash
-            const hash = window.location.hash;
-            if (hash && hash.includes("access_token")) {
-                const params = new URLSearchParams(hash.substring(1));
-                const token = params.get('access_token');
-                if (token) {
-                    localStorage.setItem('sb-token', token);
-                    window.localToken = token;
-                    window.location.hash = ""; // Limpiar URL
-                }
-            }
+            // Captura de sesión handled by checkAuth() inside initSB
+            console.log("HSR Control — Iniciando motor de seguridad...");
 
             const initSB = () => {
                 try {
