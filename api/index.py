@@ -42,7 +42,8 @@ logger = logging.getLogger("finanzasOS")
 app = FastAPI(
     title="FinanzasOS 3.7",
     description="Sistema contable consolidado para Resiliencia en Vercel.",
-    version="3.7.0"
+    version="3.7.19",
+    redirect_slashes=False
 )
 
 app.add_middleware(
@@ -54,7 +55,7 @@ app.add_middleware(
         "http://127.0.0.1:8000"
     ],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "OPTIONS", "DELETE", "PUT"],
     allow_headers=["*"],
 )
 
@@ -206,11 +207,14 @@ async def get_ai_advice_consolidated(payload: Dict, user_id: str = Depends(get_u
     context, data, prompt = payload.get("context", "business"), payload.get("data", {}), payload.get("prompt", "")
     model = genai.GenerativeModel('gemini-1.5-flash')
     sys_inst = f"Eres Ian, CFO Virtual. Contexto {context}: {data}. Responde en HTML ligero. Pregunta: {prompt}"
+    from fastapi.responses import JSONResponse
     try:
         response = model.generate_content(sys_inst)
-        return {"advice": response.text.replace("```html", "").replace("```", "").strip()}
+        text = response.text.replace("```html", "").replace("```", "").strip()
+        return JSONResponse(content={"advice": text})
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"AI ERROR: {str(e)}")
+        return JSONResponse(status_code=500, content={"error": f"Ian Error: {str(e)}", "advice": "❌ Ian está fuera de línea momentáneamente."})
 
 @app.get("/api/v1/debts")
 def debts_proxy(entidad: str = "BUSINESS", user_id: str = Depends(get_user_id)):
@@ -263,12 +267,12 @@ def get_personal_summary_proxy(user_id: str = Depends(get_user_id)):
 # ─────────────────────────────────────────────
 #  Imports conditionally if they don't crash
 # ─────────────────────────────────────────────
-try:
-    from api_v1 import router as v1_router
-    app.include_router(v1_router)
-except Exception as e:
-    logger.error(f"Could not load v1_router due to imports: {e}")
-    traceback.print_exc()
+# try:
+#     from api_v1 import router as v1_router
+#     app.include_router(v1_router)
+# except Exception as e:
+#     logger.error(f"Could not load v1_router due to imports: {e}")
+#     traceback.print_exc()
 
 # ─────────────────────────────────────────────
 #  Startup & Static
