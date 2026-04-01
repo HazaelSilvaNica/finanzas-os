@@ -1065,18 +1065,41 @@
         }
 
         function renderList(targetId, items) {
-            const container = document.getElementById(targetId);
-            if (!container) return;
+            const list = document.getElementById(targetId);
+            if (!list) return;
             
             if (!items || !Array.isArray(items) || items.length === 0) {
-                container.innerHTML = `<div class="p-10 text-center text-slate-400 text-xs italic">No hay movimientos registrados.</div>`;
+                list.innerHTML = '<p class="text-slate-400 py-8 text-center text-xs italic">Sin movimientos registrados</p>';
                 return;
             }
-            
-            container.innerHTML = "";
+
+            list.innerHTML = '';
             items.forEach(tx => {
+                const url = tx.file_url ? (tx.file_url.startsWith('http') ? tx.file_url : API_BASE + tx.file_url) : null;
+                list.innerHTML += `
+                <div class="group flex justify-between items-center p-4 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-all rounded-xl">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center ${url ? 'bg-blue-100' : 'bg-slate-100'}">
+                            ${url ? '<a href="'+url+'" target="_blank">📄</a>' : '📌'}
+                        </div>
+                        <div>
+                            <p class="font-bold text-sm">${tx.concepto}</p>
+                            <p class="text-[10px] text-slate-400 uppercase font-bold">${tx.fecha} • ${tx.categoria}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-black text-sm ${targetId.includes('personal') ? 'text-black' : 'text-[#FF3B30]'}">${formatMoney(tx.monto)}</p>
+                        <div class="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity mt-1">
+                            <button onclick="deleteTx('${tx.id}')" class="text-[10px] font-bold text-red-500 uppercase">Eliminar</button>
+                        </div>
+                    </div>
+                </div>`;
+            });
+        }
+
         function updateFormCategories(tab) {
             const select = document.getElementById('m-categoria');
+            if (!select) return;
             select.innerHTML = '';
             const cats = tab === 'business' ? [
                 { v: 'logistica', l: '📦 Logística' },
