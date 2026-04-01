@@ -1,7 +1,7 @@
 # Vercel Runtime Optimization - FinanzasOS
 fastapi
 uvicorn
-supabase==2.3.0
+supabase==2.4.1
 google-generativeai
 python-multipart
 pydantic

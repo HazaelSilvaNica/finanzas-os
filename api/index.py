@@ -87,7 +87,7 @@ def health_check():
     debug_keys = [k for k in os.environ.keys() if k.startswith(("SUPABASE_", "GOOGLE_", "NEXT_PUBLIC_SUPABASE_"))]
     return {
         "status": "ok", 
-        "version": "3.7.14", 
+        "version": "3.7.15", 
         "supabase": "CONNECTED" if sb else "OFFLINE",
         "supabase_error": get_last_error(),
         "debug_keys": debug_keys,
