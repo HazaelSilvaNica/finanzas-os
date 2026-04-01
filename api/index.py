@@ -76,16 +76,18 @@ def get_user_id(authorization: str = Header(None)):
             raise HTTPException(status_code=403, detail="Usuario no autorizado")
         return user_res.user.id
     except Exception as e:
-        logger.error(f"❌ AUTH ERROR: {str(e)} | Token prefix: {token[:10]}...")
-        traceback.print_exc()
+        logger.error(f"❌ AUTH ERROR: {str(e)}")
+        # Garantía JSON (HTTPException siempre retorna JSON en FastAPI)
         raise HTTPException(status_code=401, detail=f"Authentication failed: {str(e)}")
 
 @app.get("/api/v1/health")
 def health_check():
+    from supabase_client import get_supabase
+    sb = get_supabase()
     return {
         "status": "ok", 
-        "version": "3.7.9", 
-        "supabase": "CONNECTED" if supabase else "OFFLINE",
+        "version": "3.7.10", 
+        "supabase": "CONNECTED" if sb else "OFFLINE",
         "env": os.getenv("VERCEL_ENV", "local")
     }
 
