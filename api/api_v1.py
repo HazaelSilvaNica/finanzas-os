@@ -1,5 +1,9 @@
 import os
+import sys
 import logging
+
+# Ensure local imports within /api work correctly on Vercel
+sys.path.append(os.path.dirname(__file__))
 import uuid
 import io
 from datetime import datetime, date, timedelta

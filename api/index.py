@@ -1,5 +1,9 @@
 import os
+import sys
 import logging
+
+# Vercel Path Resolution: Ensures local imports like 'database' or 'api_v1' work in serverless
+sys.path.append(os.path.dirname(__file__))
 import uuid
 import json
 from datetime import datetime, date, timedelta
