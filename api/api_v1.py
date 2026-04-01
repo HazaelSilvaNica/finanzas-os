@@ -11,8 +11,8 @@ from openai import OpenAI
 from supabase_client import supabase
 import google.generativeai as genai
 from PIL import Image
-import pillow_heif
-import fitz  # PyMuPDF
+# import fitz  # PyMuPDF (Temporarily disabled for Vercel stability)
+# import pillow_heif (Temporarily disabled)
 
 def _check_supabase():
     """Ensure Supabase connection is persistent."""
@@ -91,54 +91,9 @@ async def process_document_with_gemini(file_content: bytes, mime_type: str):
         logger.error(f"Gemini processing error: {str(e)}")
         raise e
 
-@router.post("/ocr/process")
-async def process_doc(archivo: UploadFile = File(...), user_id: str = Depends(get_user_id)):
-    """Endpoint robusto para procesar documentos con Gemini."""
-    try:
-        # 1. Leer y Validar
-        try:
-            content = await archivo.read()
-            mime_type = archivo.content_type
-            filename = f"{uuid.uuid4()}_{archivo.filename}"
-        except Exception as e:
-            raise HTTPException(status_code=400, detail=f"Error al leer archivo: {str(e)}")
-
-        # 2. Conversión HEIC si aplica
-        if mime_type == "image/heic" or filename.lower().endswith('.heic'):
-            try:
-                heif_file = pillow_heif.read_heif(content)
-                image = Image.frombytes(heif_file.mode, heif_file.size, heif_file.data, "raw")
-                with io.BytesIO() as output:
-                    image.save(output, format="JPEG")
-                    content = output.getvalue()
-                    mime_type = "image/jpeg"
-                    filename = filename.replace('.heic', '.jpg')
-            except Exception as e:
-                raise HTTPException(status_code=422, detail=f"Error al convertir HEIC: {str(e)}")
-
-        # 3. Almacenamiento en Supabase
-        storage_path = f"{user_id}/docs/{filename}"
-        try:
-            supabase.storage.from_("docs").upload(storage_path, content, {"content-type": mime_type})
-        except Exception as e:
-            logger.error(f"Storage error: {str(e)}")
-            # Continuamos aunque falle el guardado, la prioridad es el OCR
-
-        # 4. Análisis con Gemini
-        try:
-            result = await process_document_with_gemini(content, mime_type)
-            if not result:
-                raise Exception("Respuesta de IA vacía")
-            return result
-        except Exception as e:
-            logger.error(f"Gemini Error: {str(e)}")
-            raise HTTPException(status_code=502, detail=f"La IA no pudo leer el documento: {str(e)}")
-
-    except HTTPException as he:
-        raise he
-    except Exception as e:
-        logger.exception("OCR Critical Failure")
-        raise HTTPException(status_code=500, detail=f"Fallo crítico en OCR: {str(e)}")
+# @router.post("/ocr/process")
+# async def process_doc(archivo: UploadFile = File(...), user_id: str = Depends(get_user_id)):
+#    ... (Disabled for stability)
 def _clasificar_gasto_empresarial(nombre: str) -> str:
     nombre_lower = str(nombre).lower()
     if any(k in nombre_lower for k in ["envia", "guía", "guia", "paquete", "envío", "logistica", "logística"]): return "logistica"
