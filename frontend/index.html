@@ -1179,7 +1179,9 @@
         async function registerTransaction() {
             const monto = document.getElementById('m-monto').value;
             const detalles = document.getElementById('m-detalles').value;
-            const fecha = document.getElementById('m-fecha').value || new Date().toISOString().split('T')[0];
+            // Forzar formato ISO (YYYY-MM-DD) para prevenir rechazos en Supabase
+            const rawFecha = document.getElementById('m-fecha').value;
+            const fecha = rawFecha ? new Date(rawFecha).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
             const categoria = document.getElementById('m-categoria').value;
 
             if (!monto || !detalles || parseFloat(monto) <= 0) {
