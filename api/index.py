@@ -71,7 +71,7 @@ def health_check():
     debug_keys = [k for k in os.environ.keys() if k.startswith(("SUPABASE_", "GOOGLE_", "NEXT_PUBLIC_SUPABASE_"))]
     return {
         "status": "ok", 
-        "version": "3.7.22", 
+        "version": "3.7.23", 
         "supabase": "CONNECTED" if sb else "OFFLINE",
         "supabase_error": get_last_error(),
         "debug_keys": debug_keys,
@@ -130,7 +130,7 @@ def get_business_summary(anio: Optional[int] = Query(None), mes: Optional[int] =
         "opex": round(float(opex_total), 2),
         "margen_neto": round(margin, 2),
         "health_score": "GREEN" if margin > 12 else ("YELLOW" if margin >= 5 else "RED"),
-        "version": "3.7.22"
+        "version": "3.7.23"
     }
 
 @app.get("/api/v1/business/expenses")
@@ -296,7 +296,7 @@ if not os.getenv("VERCEL"):
 app = FastAPI(
     title="FinanzasOS 3.7",
     description="Sistema contable consolidado para Resiliencia en Vercel.",
-    version="3.7.22",
+    version="3.7.23",
     redirect_slashes=False
 )
 
