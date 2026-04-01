@@ -2,36 +2,47 @@ import os
 from supabase import create_client, Client
 from dotenv import load_dotenv
 
-load_dotenv()
+# Singleton para el cliente de Supabase
+_supabase_instance: Client = None
 
-# Inicialización Estricta (Según instrucciones de Hazael)
-url = os.getenv("SUPABASE_URL")
-key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY") or os.environ.get("SUPABASE_SERVICE_KEY") or os.environ.get("SUPABASE_KEY")
+def get_supabase() -> Client:
+    """
+    Retorna el cliente de Supabase con inicialización dinámica (Lazy).
+    Esto fuerza a leer las variables de entorno en tiempo de ejecución.
+    """
+    global _supabase_instance
+    if _supabase_instance is not None:
+        return _supabase_instance
 
-if not url or not key:
-    print(f"❌ ERROR: Faltan variables de entorno de Supabase. URL: {url}, Key: {key[:5] if key else 'None'}")
-    # Nota: No lanzamos Exception fatal aquí para que el servidor responda 503 en lugar de crash total
-    supabase = None
-else:
+    load_dotenv()
+    url = os.environ.get("SUPABASE_URL") or os.environ.get("NEXT_PUBLIC_SUPABASE_URL")
+    key = (
+        os.environ.get("SUPABASE_SERVICE_ROLE_KEY") or 
+        os.environ.get("SUPABASE_SERVICE_KEY") or 
+        os.environ.get("SUPABASE_KEY") or 
+        os.environ.get("SUPABASE_ANON_KEY")
+    )
+
+    if not url or not key:
+        print(f"❌ SUPABASE OFFLINE: URL {'Presente' if url else 'Faltante'}, KEY {'Presente' if key else 'Faltante'}")
+        return None
+
     try:
-        supabase: Client = create_client(url, key)
-        print("✅ Supabase Client Initialized (v3.7.10)")
+        _supabase_instance = create_client(url, key)
+        print(f"✅ Supabase Dynamically Connected (v3.7.11) to: {url[:15]}...")
+        return _supabase_instance
     except Exception as e:
-        print(f"❌ Error initializing Supabase: {e}")
-        supabase = None
+        print(f"❌ Error al conectar dinámicamente a Supabase: {e}")
+        return None
 
-# Verificación de IA
-google_key = os.getenv("GOOGLE_API_KEY")
-if not google_key:
-    print("⚠️ Warning: GOOGLE_API_KEY missing. Ian AI might be offline.")
-
-def get_supabase():
-    return supabase
+# Mantenemos 'supabase' para compatibilidad, pero DEBE usarse get_supabase() para asegurar frescura
+supabase = get_supabase()
 
 def init_storage():
-    if not supabase: return
+    sb = get_supabase()
+    if not sb: return
     try:
-        buckets = supabase.storage.list_buckets()
+        buckets = sb.storage.list_buckets()
         if not any(b.name == 'comprobantes' for b in buckets):
-            supabase.storage.create_bucket('comprobantes', options={'public': True})
+            sb.storage.create_bucket('comprobantes', options={'public': True})
     except: pass

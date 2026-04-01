@@ -86,7 +86,7 @@ def health_check():
     sb = get_supabase()
     return {
         "status": "ok", 
-        "version": "3.7.10", 
+        "version": "3.7.11", 
         "supabase": "CONNECTED" if sb else "OFFLINE",
         "env": os.getenv("VERCEL_ENV", "local")
     }
