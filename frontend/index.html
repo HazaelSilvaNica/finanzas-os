@@ -739,14 +739,17 @@
         
         async function checkSession() {
             const token = window.localToken || localStorage.getItem('sb-token');
+            const authOverlay = document.getElementById('auth-overlay');
+            const mainApp = document.getElementById('main-app');
+
             if (token) {
-                // Verificación pasiva - asumimos logueado y dejamos que el 401 de la API decida si expiró
-                document.getElementById('auth-screen').classList.add('hidden');
-                document.getElementById('app-container').classList.remove('hidden');
+                console.log("🔓 Sesión activa. Entrando...");
+                if (authOverlay) authOverlay.classList.add('hidden');
+                if (mainApp) mainApp.classList.remove('hidden');
                 State.refreshUI();
             } else {
-                document.getElementById('auth-screen').classList.remove('hidden');
-                document.getElementById('app-container').classList.add('hidden');
+                if (authOverlay) authOverlay.classList.remove('hidden');
+                if (mainApp) mainApp.classList.add('hidden');
             }
         }
         
