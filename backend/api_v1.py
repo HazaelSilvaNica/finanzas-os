@@ -46,7 +46,8 @@ router = APIRouter(prefix="/api/v1")
 logger = logging.getLogger("finanzasOS.v1")
 
 # Configuración Gemini
-GOOGLE_API_KEY = "AIzaSyC4BYndjbqdX9FknsGqfTiK167x6s8quCI"
+# Buscamos en env vars primero (Vercel), luego fallback a hardcoded para desarrollo rápido
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "AIzaSyC4BYndjbqdX9FknsGqfTiK167x6s8quCI")
 genai.configure(api_key=GOOGLE_API_KEY)
 
 UPLOADS_DIR = os.path.join(os.path.dirname(__file__), "data", "uploads")
@@ -658,18 +659,21 @@ async def get_ai_advice(payload: Dict, user_id: str = Depends(get_user_id)):
     if not GOOGLE_API_KEY:
         raise HTTPException(status_code=500, detail="Gemini API Key no configurada en el servidor.")
 
+    print(f"DEBUG — Ian Payload: {payload}")
+
     try:
         # Generamos contenido con el contexto y la duda específica
         response = model.generate_content(system_instruction)
         
         if not response or not response.text:
-            raise Exception("Gemini devolvió una respuesta vacía")
+            raise Exception("Gemini devolvió una respuesta vacía o bloqueada por seguridad")
 
         # Limpieza básica de markdown si Gemini ignora la instrucción de HTML
         advice_html = response.text.replace("```html", "").replace("```", "").replace("```", "").strip()
         
         return {"advice": advice_html}
     except Exception as e:
-        logger.error(f"Ian AI Critical Error: {str(e)}")
-        # Devuelve un mensaje amigable pero indica que hay un problema técnico
-        raise HTTPException(status_code=503, detail="Ian está calibrando sus modelos financieros. Por favor, reintenta en 30 segundos.")
+        error_msg = str(e)
+        logger.error(f"Ian AI Critical Error: {error_msg}")
+        # Enviamos el error real al frontend para debug (el anterior bloque catch era genérico)
+        raise HTTPException(status_code=500, detail=f"Ian Error: {error_msg}")
