@@ -42,19 +42,13 @@ logger = logging.getLogger("finanzasOS")
 app = FastAPI(
     title="FinanzasOS 3.7",
     description="Sistema contable consolidado para Resiliencia en Vercel.",
-    version="3.7.19",
+    version="3.7.20",
     redirect_slashes=False
 )
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://hsragent.com",
-        "https://www.hsragent.com",
-        "http://localhost:8000",
-        "http://127.0.0.1:8000"
-    ],
-    allow_credentials=True,
+    allow_origins=["*"],
     allow_methods=["GET", "POST", "OPTIONS", "DELETE", "PUT"],
     allow_headers=["*"],
 )
@@ -163,7 +157,7 @@ def business_expenses_proxy(anio: Optional[int] = Query(None), mes: Optional[int
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/api/v1/transactions")
+@app.post("/api/v1/transactions", methods=["POST", "OPTIONS"])
 async def register_transaction(
     monto: float = Form(...),
     tipo: str = Form(...),
@@ -202,7 +196,7 @@ async def register_transaction(
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/api/v1/ai/advice")
+@app.post("/api/v1/ai/advice", methods=["POST", "OPTIONS"])
 async def get_ai_advice_consolidated(payload: Dict, user_id: str = Depends(get_user_id)):
     context, data, prompt = payload.get("context", "business"), payload.get("data", {}), payload.get("prompt", "")
     model = genai.GenerativeModel('gemini-1.5-flash')
